@@ -6,28 +6,32 @@ import statistics
 
 import matplotlib.pyplot as plt
 
-FREQUENCIES = [500, 1000, 2000, 5000, 10000]
-MOLARITY = ["0005M", "001M", "003M", "005M", "015M"]
+FREQUENCIES = [500, 1000, 2000, 5000, 10_000, 20_000, 50_000]
+NUMBER_OF_FREQUENCIES = 7
+MOLARITY = [0.005, 0.01, 0.03, 0.05, 0.15]
+NUMBER_OF_MOLARITIES = 5
 COLORS = ["black", "blue", "green", "red", "orange"]
 LITERATURE = [0.047, 0.094, 0.281, 0.466, 1.375]
+CONDUCTANCES = {}
+CONDUCTIVITIES = {}
 
 
-# assumption: delta T is constant
+def init_conductance_dict():
+    for i in range(len(MOLARITY)):
+        CONDUCTANCES[MOLARITY[i]] = []
+
+
+def init_conductivity_dict():
+    for i in range(len(MOLARITY)):
+        CONDUCTIVITIES[MOLARITY[i]] = []
+
+
 def rms(signal: np.ndarray) -> float:
-    sum = 0
+    acc = 0
     for value in signal:
-        sum += value ** 2
-    sum /= len(signal)
-    return math.sqrt(sum)
-
-
-def plot_conductance_vs_frequency(signal: list, c: str, l: str):
-    if (len(signal) != len(FREQUENCIES)):
-        raise ValueError("every frequency needs one value, every value needs one frequency")
-    plt.scatter(FREQUENCIES[0], signal[0], color=c, label=l)
-    plt.plot(FREQUENCIES, signal, color=c)
-    for i in range(1, len(signal)):
-        plt.scatter(FREQUENCIES[i], signal[i], color=c)
+        acc += value ** 2
+    acc /= len(signal)
+    return math.sqrt(acc)
 
 
 def calculate_current(voltage_over_resistor: np.ndarray, resistor: float) -> float:
@@ -35,100 +39,56 @@ def calculate_current(voltage_over_resistor: np.ndarray, resistor: float) -> flo
     return voltage / resistor
 
 
-def save_conductance_as_csv(signal: list):
+def calculate_conductance(frequency: int, molarity: float) -> float:
     pass
 
 
-def calculate_conductance(current: float, molarity: str) -> list:
-    base_path = ""
-    end_path = ""
-    conductances = []
+def calculate_cell_constant():
+    init_conductance_dict()
+    cell_constant_predictions = []
+    for f in range(NUMBER_OF_FREQUENCIES):
+        for m in range(NUMBER_OF_MOLARITIES):
+            g = calculate_conductance(FREQUENCIES[f], MOLARITY[m])
+            CONDUCTANCES[MOLARITY].append(g)
+            cell_constant_predictions.append(g / LITERATURE[m])
+    return statistics.mean(cell_constant_predictions)
 
-    for f in FREQUENCIES:
-        voltage_over_inner_pair = np.load(base_path + molarity + "\\result\\" + str(f) + "Hz" + end_path)
-        # voltage in mv
-        v = rms(voltage_over_inner_pair) / 1000
-        conductances.append(1 / (v / current))
-    return conductances
+
+def predict_conductivity():
+    init_conductivity_dict()
+    CELL_CONSTANT = calculate_cell_constant()
+    print("CELL CONSTANT = ", CELL_CONSTANT)
+    # TODO: save CELL CONSTANT
+    for key in CONDUCTANCES.keys():
+        CONDUCTIVITIES[key].append(CONDUCTANCES[key] / CELL_CONSTANT)
+
+
+def save_conductance_and_conductivites_as_csv():
+    """
+    save conductance and predicted conductivity as csv
+    """
+    pass
+
+
+def save_data_analysis_conductivity_and_conductance_as_csv():
+    """
+    [NaCl]  G(S) average    G(S) SD    G(S) % SD    sigma average    sigma peyman   sigma percentage difference to literature
+    :return:
+    """
+    pass
+
+
+def save_average_frequency_dependent_conductivity_error_as_csv():
+    pass
+
+
+def plot_conductances():
+    pass
+
+
+def plot_conductivities_with_benchmark():
+    pass
 
 
 if __name__ == '__main__':
-    signal_for_current_calculation = np.load("")
-    current = calculate_current(signal_for_current_calculation, 243)
-
-    os.chdir("")
-
-    f = open('conductances.csv', 'w')
-
-    writer = csv.writer(f)
-    writer.writerow(["Molarity"] + FREQUENCIES + ["mean G(s)", "sd G(S)"])
-
-    plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Conductance [S]")
-
-    all_conductances = []
-
-    for i in range(5):
-        conductances = calculate_conductance(current, MOLARITY[i])
-        all_conductances.append(conductances)
-        plot_conductance_vs_frequency(conductances, COLORS[i], MOLARITY[i])
-
-        conductances.append(statistics.mean(conductances))
-        conductances.append(statistics.stdev(conductances))
-        conductances.insert(0, MOLARITY[i])
-        writer.writerow(conductances)
-
-    plt.legend()
-    plt.savefig("conductance_vs_frequencies.svg")
-
-    f.close()
-
-    """
-    plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Conductance (S)")
-
-    signal_0005 = [1, 1.1, 1, 0.9, 1]
-    signal_001  = [3, 3, 3.1, 3, 2.9]
-
-    plot_conductance_vs_frequency(signal_0005, "blue", "0.005M" )
-    plot_conductance_vs_frequency(signal_001, "red", "0.01M" )
-
-    plt.legend()
-    plt.show()
-
-
-    signal_0005 = [1, 1, 1.1, 1, 0.9, 1]
-    signal_001  = [3, 3, 3.1, 3, 2.9, 3]
-    signal_003  = [5, 5, 5.1, 5, 4.9, 5]
-    signal_005  = [7, 7, 7.1, 7, 6.9, 7]
-    signal_015  = [9, 9, 9.1, 9, 8.9, 9]
-
-    plt.plot(signal_0005, label="0.005M", color="blue")
-    for i in range(len(signal_0005)):
-        plt.scatter(i, signal_0005[i], color="blue")
-
-    plt.plot(signal_001, label="0.01M", color="green")
-    for i in range(len(signal_001)):
-        plt.scatter(i, signal_001[i], color="green")
-
-
-    plt.plot(signal_003, label="0.03M", color="red")
-    for i in range(len(signal_003)):
-        plt.scatter(i, signal_003[i], color="red")
-
-
-    plt.plot(signal_005, label="0.05M", color="orange")
-    for i in range(len(signal_005)):
-        plt.scatter(i, signal_005[i], color="orange")
-
-    plt.plot(signal_015, label="0.15M",color="purple")
-    for i in range(len(signal_015)):
-        plt.scatter(i, signal_015[i], color="purple")
-
-    plt.xlabel("Frequency [Hz]")
-    plt.ylabel("Conductance (S)")
-
-    plt.legend()
-    plt.show()
-    """
-
+    pass
