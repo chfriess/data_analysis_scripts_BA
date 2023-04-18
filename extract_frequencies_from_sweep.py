@@ -12,14 +12,14 @@ synch_end_low_freq_duration = 3
 
 SAMPLING_FREQUENCY = 500_000
 
-filepath = ""
-destination = ""
+filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\015M\\after_sync\\conductivity_measurements__voltage_over_inner_pair.npy"
+destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\015M\\after_crop\\"
 
 connected_frequencies = np.load(filepath)
 decomposed_frequencies = []
-begin_of_measurement = (int)((5+9.7)*SAMPLING_FREQUENCY)
+begin_of_measurement = int((5 + 9.7) * SAMPLING_FREQUENCY)
 current_offset = begin_of_measurement
-epsilon = 100_000
+epsilon = 500_000
 
 for i in range (len(sweep_frequencies)):
     decomposed_frequencies.append(connected_frequencies[(current_offset+epsilon):((current_offset+3*SAMPLING_FREQUENCY)-epsilon)])

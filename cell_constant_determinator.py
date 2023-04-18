@@ -7,7 +7,7 @@ import statistics
 import matplotlib.pyplot as plt
 
 PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\"
-RESULT_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\results\\"
+RESULT_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\results\\results_without_scaling_error\\"
 FREQUENCIES = [500, 1000, 2000, 5000, 10_000, 20_000, 50_000]
 NUMBER_OF_FREQUENCIES = 7
 MOLARITY = [0.005, 0.01, 0.03, 0.05, 0.15]
@@ -41,18 +41,28 @@ def rms(signal: np.ndarray) -> float:
 
 
 def calculate_current(voltage_over_resistor: np.ndarray, resistor: float) -> float:
-    voltage = rms(voltage_over_resistor) / 1000
+    voltage = rms(determine_and_subtract_signal_mean(voltage_over_resistor)) / 1000
     return voltage / resistor
+
+
+def determine_and_subtract_signal_mean(signal: np.ndarray) -> np.ndarray:
+    mean = np.mean(signal)
+    result = []
+    for x in signal:
+        result.append(x-mean)
+    return np.array(result)
 
 
 def calculate_conductance(frequency: int, molarity: float) -> float:
     # calculate output current at specific frequency/molarity combination
-    if molarity == 0.2:
-        resistor_path = PATH + MOLARITY_MAP[molarity] + "\\cropped_voltage_over_resistor" + "\\voltage_over_resistor_"
-        resistor_path += MOLARITY_MAP[molarity] + "_" + str(frequency) + "Hz.npy"
-    else:
+    #TODO: reset the molarity == 0.2 to 0.15?
+    if molarity == 0.15:
         resistor_path = PATH + "001M" + "\\cropped_voltage_over_resistor" + "\\voltage_over_resistor_"
         resistor_path += "001M" + "_" + str(frequency) + "Hz.npy"
+    else:
+        resistor_path = PATH + MOLARITY_MAP[molarity] + "\\cropped_voltage_over_resistor" + "\\voltage_over_resistor_"
+        resistor_path += MOLARITY_MAP[molarity] + "_" + str(frequency) + "Hz.npy"
+
     voltage_over_resistor = np.load(resistor_path)
     current = calculate_current(voltage_over_resistor=voltage_over_resistor, resistor=480)
     CURRENTS.append(current)
@@ -61,23 +71,39 @@ def calculate_conductance(frequency: int, molarity: float) -> float:
     inner_pair_path = PATH + MOLARITY_MAP[molarity] + "\\after_crop" + "\\voltage_over_inner_pair_"
     inner_pair_path += str(frequency) + "_Hz_decomposed_.npy"
     voltage_over_inner_pair_signal = np.load(inner_pair_path)
-    voltage_over_inner_pair = rms(voltage_over_inner_pair_signal)
+
+    voltage_over_inner_pair = rms(determine_and_subtract_signal_mean(voltage_over_inner_pair_signal)) / 1000
 
     return current / voltage_over_inner_pair
 
 
 def calculate_cell_constant():
     init_conductance_dict()
+    cell_constant_predictions_per_frequency = {}
     cell_constant_predictions = []
+    for f in range(len(FREQUENCIES)):
+        cell_constant_predictions_per_frequency[f] = []
     for m in range(NUMBER_OF_MOLARITIES):
         for f in range(NUMBER_OF_FREQUENCIES):
             g = calculate_conductance(FREQUENCIES[f], MOLARITY[m])
             CONDUCTANCES[MOLARITY[m]].append(g)
             cell_constant_predictions.append((g / LITERATURE[m]))
+            cell_constant_predictions_per_frequency[f].append((g / LITERATURE[m]))
+    print("cell constant predictions: ")
+    for c in cell_constant_predictions_per_frequency.values():
+        print(c)
+
+    print("\n\n")
     cell_constant = statistics.mean(cell_constant_predictions)
     with open(RESULT_PATH + 'cell_constant.txt', 'w') as file:
         file.write("CELL CONSTANT = " + str(cell_constant) + "\n")
-        file.write("CELL CONSTANT STDEV = " + str(statistics.stdev(cell_constant_predictions)))
+        file.write("CELL CONSTANT STDEV = " + str(statistics.stdev(cell_constant_predictions))+ "\n\n\n\n")
+
+        for f in range(len(FREQUENCIES)):
+            file.write("Cell constant for " + str(FREQUENCIES[f]) + ": " + str(statistics.mean(cell_constant_predictions_per_frequency[f]))+ "\n")
+            file.write("Cell constant stdev for " + str(FREQUENCIES[f]) + ": " + str(statistics.stdev(cell_constant_predictions_per_frequency[f]))+ "\n\n")
+
+
     return cell_constant
 
 
@@ -129,8 +155,8 @@ def save_data_analysis_conductivity_and_conductance_as_csv():
                 [statistics.mean(CONDUCTIVITIES[key])] +
                 [statistics.stdev(CONDUCTIVITIES[key])] +
                 [LITERATURE[i]] +
-                [(statistics.mean(CONDUCTIVITIES[key]) - LITERATURE[i]) * 100])
-        i += i
+                [((statistics.mean(CONDUCTIVITIES[key]) - LITERATURE[i])/LITERATURE[i]) * 100])
+            i += 1
 
 
 def plot_conductances():
@@ -168,12 +194,11 @@ def calculate_current_mean_and_stdev():
 
 
 def calculate_cell_constant_and_conductivity():
-    calculate_cell_constant()
     predict_conductivity()
     save_conductance_and_conductivites_as_csv()
     save_data_analysis_conductivity_and_conductance_as_csv()
     plot_conductances()
-    plot_conductivities_with_benchmark()
+    #plot_conductivities_with_benchmark()
 
 
 
