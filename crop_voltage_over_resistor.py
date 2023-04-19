@@ -11,8 +11,9 @@ synch_end_low_freq_duration = 3
 
 SAMPLING_FREQUENCY = 500_000
 
-filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_005M\\after_sync\\conductivity_measurements__voltage_over_resistor.npy"
-destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_005M\\crop_voltage_over_resistor\\"
+MOLARITY = "002M"
+filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_" + MOLARITY + "\\after_sync\\conductivity_measurements__voltage_over_resistor.npy"
+destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_" + MOLARITY + "\\crop_voltage_over_resistor\\"
 
 voltage_over_resistor = np.load(filepath)
 
@@ -29,7 +30,7 @@ for i in range(len(sweep_frequencies)):
     current_offset += 3 * SAMPLING_FREQUENCY
 
 for i in range(len(decomposed_frequencies)):
-    np.save(destination + "voltage_over_resistor_agar_005M" + str(sweep_frequencies[i]) + "Hz",
+    np.save(destination + "voltage_over_resistor_agar_" + MOLARITY + str(sweep_frequencies[i]) + "Hz",
             np.array(decomposed_frequencies[i]))
     plt.plot(np.array(decomposed_frequencies[i]))
-    plt.savefig(destination + "voltage_over_resistor_agar_005M" + str(sweep_frequencies[i]) + "Hz"+".svg")
+    plt.savefig(destination + "voltage_over_resistor_agar_" + MOLARITY + str(sweep_frequencies[i]) + "Hz" + ".svg")

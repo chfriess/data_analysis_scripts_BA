@@ -12,8 +12,8 @@ synch_end_low_freq_duration = 3
 
 SAMPLING_FREQUENCY = 500_000
 
-filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\015M\\after_sync\\conductivity_measurements__voltage_over_inner_pair.npy"
-destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\015M\\after_crop\\"
+filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_002M\\after_sync\\conductivity_measurements__voltage_over_inner_pair.npy"
+destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_002M\\after_crop\\"
 
 connected_frequencies = np.load(filepath)
 decomposed_frequencies = []
@@ -32,4 +32,4 @@ for i in range(len(decomposed_frequencies)):
     axes.plot(np.array(decomposed_frequencies[i]))
     plt.plot(np.array(decomposed_frequencies[i]))
     plt.savefig(destination+filename + ".svg")
-    pickle.dump(fig, open(destination+filename+".pkl", 'wb'))
+    #pickle.dump(fig, open(destination+filename+".pkl", 'wb'))

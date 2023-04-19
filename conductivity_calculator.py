@@ -4,8 +4,10 @@ import statistics
 import numpy as np
 
 
-FREQUENCIES = [500, 1000, 2000, 5000, 10_000, 20_000, 50_000]
-MOLARITY = "005M"
+#FREQUENCIES = [500, 1000, 2000, 5000, 10_000, 20_000, 50_000]
+FREQUENCIES = [1000]
+F = "_1000Hz"
+MOLARITY = "002M"
 DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\agar_"+MOLARITY+"\\conductivity\\"
 CELL_CONSTANT = 0.005869712999883455
 CC_STDEV = 0.0014405813130868863
@@ -55,7 +57,7 @@ if __name__ == '__main__':
         conductances.append(calculate_conductance(f))
 
     conductance = statistics.mean(conductances)
-    with open(DESTINATION + "conductance_agar_"+MOLARITY+".txt", 'w') as file:
+    with open(DESTINATION + "conductance_agar_"+MOLARITY+F+".txt", 'w') as file:
         file.write("Conductance of agar with "+MOLARITY+" NaCl: \n")
         file.write(str(conductance))
         file.write("\n\n")
