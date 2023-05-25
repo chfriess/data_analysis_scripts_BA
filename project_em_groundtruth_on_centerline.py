@@ -5,10 +5,6 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
-COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\coregistration_28\\em_groundtruth\\groundtruth_coordinates_before_projection.csv"
-COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\coregistration_28\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
-DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\coregistration_28\\em_groundtruth\\displacement_from_origin.npy"
-FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\coregistration_28\\em_groundtruth\\displacement_from_origin.svg"
 
 CENTERLINE_AORTA_BASIS = np.array([13.6082, -147.804, -268.954])
 CENTERLINE_AORTA_TOP = np.array([12.5576, 52.093, -275.282])
@@ -66,10 +62,12 @@ def project_single_point_on_centerline(point: np.ndarray):
 
 
 
-def project_points_on_centerlines(path: str):
-    df_before_projection = pd.read_csv(path, sep=',')
+def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
+                                  COREGISTRATION_DESTINATION: str,
+                                  DISPLACEMENT_DESTINATION: str,
+                                  FIGURE_DESTINATION: str):
+    df_before_projection = pd.read_csv(COREGISTRATION_SOURCE, sep=',')
     df_before_projection.apply(project_single_point_on_centerline, axis=1)
-    print(DISPLACEMENTS_FROM_ORIGIN)
     plt.plot(DISPLACEMENTS_FROM_ORIGIN)
     plt.savefig(FIGURE_DESTINATION)
     np.save(DISPLACEMENT_DESTINATION, DISPLACEMENTS_FROM_ORIGIN)
@@ -81,4 +79,16 @@ def project_points_on_centerlines(path: str):
 
 
 if __name__ == "__main__":
-    project_points_on_centerlines(COREGISTRATION_SOURCE)
+
+    VARIABLE_PATH = "coregistration_35"
+
+    COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_before_projection.csv"
+    COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
+    DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.npy"
+    FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.svg"
+
+
+    project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
+                                      COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
+                                      DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
+                                      FIGURE_DESTINATION=FIGURE_DESTINATION)
