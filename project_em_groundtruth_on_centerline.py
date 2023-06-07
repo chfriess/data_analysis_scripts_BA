@@ -6,16 +6,16 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 
-CENTERLINE_AORTA_BASIS = np.array([13.6082, -147.804, -268.954])
-CENTERLINE_AORTA_TOP = np.array([12.5576, 52.093, -275.282])
+CENTERLINE_AORTA_BASIS = np.array([24.9633,	-111.474,	-257.823])
+CENTERLINE_AORTA_TOP = np.array([33.7898,	88.3246,	-259.437])
 AORTA = {'BASIS': CENTERLINE_AORTA_BASIS, 'TOP': CENTERLINE_AORTA_TOP}
 
-CENTERLINE_ILIACA_LOWER_BASIS = np.array([12.5576, 52.093, -275.282])
-CENTERLINE_ILIACA_LOWER_TOP = np.array([75.6866, 115.839, -263.231])
-ILIACA_LOWER = {'BASIS': CENTERLINE_ILIACA_LOWER_BASIS, 'TOP': CENTERLINE_ILIACA_LOWER_TOP}
+# CENTERLINE_ILIACA_LOWER_BASIS = np.array([12.5576, 52.093, -275.282])
+# CENTERLINE_ILIACA_LOWER_TOP = np.array([75.6866, 115.839, -263.231])
+# ILIACA_LOWER = {'BASIS': CENTERLINE_ILIACA_LOWER_BASIS, 'TOP': CENTERLINE_ILIACA_LOWER_TOP}
 
-CENTERLINE_ILIACA_UPPER_BASIS = np.array([12.5576, 52.093, -275.282])
-CENTERLINE_ILIACA_UPPER_TOP = np.array([-51.2332, 114.283, -291.319])
+CENTERLINE_ILIACA_UPPER_BASIS = np.array([33.7898,	88.3246,	-259.437])
+CENTERLINE_ILIACA_UPPER_TOP = np.array([-28.282,	154.153,	-256.653])
 ILIACA_UPPER = {'BASIS': CENTERLINE_ILIACA_UPPER_BASIS, 'TOP': CENTERLINE_ILIACA_UPPER_TOP}
 
 ILIACA = ILIACA_UPPER
@@ -53,7 +53,10 @@ def project_single_point_on_centerline(point: np.ndarray):
     if distance_of_point_from_line(vessel=AORTA, point=point) <= distance_of_point_from_line(vessel=ILIACA,
                                                                                              point=point):
         closest_point = closest_point_on_line(vessel=AORTA, point=point)
-        DISPLACEMENTS_FROM_ORIGIN.append(distance_3D(closest_point, CENTERLINE_AORTA_BASIS))
+        if closest_point[1] < CENTERLINE_AORTA_BASIS[1]:
+            DISPLACEMENTS_FROM_ORIGIN.append(-distance_3D(closest_point, CENTERLINE_AORTA_BASIS))
+        else:
+            DISPLACEMENTS_FROM_ORIGIN.append(distance_3D(closest_point, CENTERLINE_AORTA_BASIS))
         PROJECTION_MERKER.append(closest_point.tolist())
     else:
         closest_point = closest_point_on_line(vessel=ILIACA, point=point)
@@ -72,6 +75,7 @@ def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
     plt.savefig(FIGURE_DESTINATION)
     np.save(DISPLACEMENT_DESTINATION, DISPLACEMENTS_FROM_ORIGIN)
 
+
     df_after_projection = pd.DataFrame(PROJECTION_MERKER)
     df_after_projection.to_csv(COREGISTRATION_DESTINATION, sep=' ', quoting=csv.QUOTE_NONE, escapechar=' ', index=False, header=False)
 
@@ -79,16 +83,14 @@ def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
 
 
 if __name__ == "__main__":
-
-    VARIABLE_PATH = "coregistration_35"
-
-    COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_before_projection.csv"
-    COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
-    DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.npy"
-    FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\06_05_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.svg"
+    VARIABLE_PATH = "coregistration_59"
+    COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_before_projection.csv"
+    COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
+    DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.npy"
+    FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"+ VARIABLE_PATH  + "\\em_groundtruth\\displacement_from_origin.svg"
 
 
     project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
-                                      COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
-                                      DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
-                                      FIGURE_DESTINATION=FIGURE_DESTINATION)
+                                        COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
+                                        DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
+                                        FIGURE_DESTINATION=FIGURE_DESTINATION)
