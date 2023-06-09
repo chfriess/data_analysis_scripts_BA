@@ -8,7 +8,7 @@ if __name__ == "__main__":
     BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"
 
     # for COREGISTRATION_NR in ["20", "25", "29", "30", "31", "34", "35"]:
-    for COREGISTRATION_NR in ["39"]:
+    for COREGISTRATION_NR in ["42"]:
     #for COREGISTRATION_NR in [str(x) for x in range(40, 60)]:
         os.chdir(BASE_PATH + "coregistration_"
                  + COREGISTRATION_NR + "\\data_bioelectric_sensors\\")
