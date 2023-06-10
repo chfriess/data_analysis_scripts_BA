@@ -96,3 +96,5 @@ for i in range(5):
 
 for particle in particles:
     plot_particle(position=particle[0], branch=particle[1])
+
+plt.show()
