@@ -5,16 +5,17 @@ import pandas as pd
 from matplotlib import pyplot as plt
 
 if __name__ == "__main__":
-    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"
+
+    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch new setup\\"
 
     # for COREGISTRATION_NR in ["20", "25", "29", "30", "31", "34", "35"]:
-    for COREGISTRATION_NR in ["42"]:
-    #for COREGISTRATION_NR in [str(x) for x in range(40, 60)]:
-        os.chdir(BASE_PATH + "coregistration_"
+    for COREGISTRATION_NR in [str(x) for x in range(1,11)]:
+        # for COREGISTRATION_NR in [str(x) for x in range(40, 60)]:
+        os.chdir(BASE_PATH + "sample_"
                  + COREGISTRATION_NR + "\\data_bioelectric_sensors\\")
 
-        em_timestamp_path = BASE_PATH + "coregistration_" \
-                            + COREGISTRATION_NR + "\\coregistration_" + COREGISTRATION_NR + "_em.csv"
+        em_timestamp_path = BASE_PATH + "sample_" \
+                            + COREGISTRATION_NR + "\\em_groundtruth\\coregistration_" + COREGISTRATION_NR + "_em.csv"
 
         FILE = "coregistration_" + COREGISTRATION_NR + "_sampling_corrected.npz"
 
@@ -23,7 +24,7 @@ if __name__ == "__main__":
         df = pd.read_csv(em_timestamp_path, sep="\t")
         df2 = df.iloc[:, 16:17]
         raw_timestamps = df2.to_numpy()
-        em = np.load(BASE_PATH + "coregistration_"
+        em = np.load(BASE_PATH + "sample_"
                      + COREGISTRATION_NR + "\\em_groundtruth\\displacement_from_origin.npy")
         timestamps_em = []
         for i in range(1, len(raw_timestamps)):
@@ -44,6 +45,9 @@ if __name__ == "__main__":
         for i in range(1, len(cumulative_displacements)):
             displacements.append(cumulative_displacements[i] - cumulative_displacements[i - 1])
 
+
+        displacements = list(np.array(displacements) * (-1))
+
         # generate new x axis, cumualtive displacement em has a zero value , displacement and impedance starts one later
         x_bioelectric = np.linspace(data["mean_times_of_fft_windows_chAB"][0],
                                     data["mean_times_of_fft_windows_chAB"][-1], 149)
@@ -59,13 +63,12 @@ if __name__ == "__main__":
 
         plt.plot(cumulative_interpolated[:-2], label="cumulative interpolated")
         plt.plot(em_interpolated[:-2] - em_interpolated[0], label="em interpolated")
-        plt.plot(np.array([0]) + impedance_interpolated[:-2] / 1000, label="impedance interpolated")
+        plt.plot(np.array([0]) + impedance_interpolated[:-2] / 100, label="impedance interpolated")
         plt.plot(displacements_interpolated[:-2], label="displacements interpolated")
         plt.legend()
         plt.show()
 
-        """
-        plt.savefig("check_validity_" + COREGISTRATION_NR+".svg")
+        plt.savefig("check_validity_" + COREGISTRATION_NR + ".svg")
         np.save("em_interpolated_" + COREGISTRATION_NR, em_interpolated[:-2])
         np.save("impedance_interpolated_" + COREGISTRATION_NR, impedance_interpolated[:-2])
         np.save("displacements_interpolated_" + COREGISTRATION_NR, displacements_interpolated[:-2])
@@ -75,4 +78,3 @@ if __name__ == "__main__":
         print(len(impedance_interpolated))
         print(len(displacements_interpolated))
         plt.clf()
-        """

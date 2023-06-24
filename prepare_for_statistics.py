@@ -1,46 +1,38 @@
 import csv
 
-samples = ["20", "25", "27", "29", "30", "31", "34", "35"]
-path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\"
+#SAMPLES = ["20", "25", "27", "29"]
+#PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\test\\"
 
-
-with open(path + "statistics_for_AnovaRM.csv", 'w', newline='') as sheet:
+with open(PATH + "statistics_for_AnovaRM.csv", 'w', newline='') as sheet:
     writer = csv.writer(sheet, delimiter=',')
     writer.writerow(["sample", "measurement", "rms"])
-    for i in range(len(samples)):
-        ahistoric_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + str(
-            samples[i]) + "\\results_sample_" + str(samples[i]) + "\\ahistoric\\"
-        dtw_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + str(
-            samples[i]) + "\\results_sample_" + str(samples[i]) + "\\sliding_dtw\\"
-        with open(ahistoric_path + "phantom_sample_" + str(samples[i]) + "_rms.txt", 'r') as file:
+
+    for i, sample in enumerate(SAMPLES):
+        ahistoric_path = PATH + "sample_" + sample + "\\" + "AHISTORIC" + "\\" + sample + "_rms.txt"
+        dtw_path = PATH + "sample_" + sample + "\\" + "SLIDING_DTW" + "\\" + sample + "_rms.txt"
+        with open(ahistoric_path, 'r') as file:
             lines = file.readlines()
+            writer.writerow([i + 1, "ahistoric", float(lines[1])])
 
-            writer.writerow([i+1, "ahistoric", float(lines[1])])
-
-        with open(dtw_path + "phantom_sample_" + str(samples[i]) + "_rms.txt", 'r') as file:
+        with open(dtw_path) as file:
             lines = file.readlines()
+            writer.writerow([i + 1, "sliding_dtw", float(lines[1])])
+            writer.writerow([i + 1, "displacement", float(lines[4])])
+            writer.writerow([i + 1, "alpha_displacement", float(lines[7])])
 
-            writer.writerow([i+1, "sliding_dtw", float(lines[1])])
-            writer.writerow([i+1, "displacement", float(lines[4])])
-            writer.writerow([i+1, "alpha_displacement", float(lines[7])])
-
-
-
-with open(path + "statistics_for_post_hocs_tests.csv", 'w', newline='') as sheet:
+with open(PATH + "statistics_for_post_hoc_tests.csv", 'w', newline='') as sheet:
     writer = csv.writer(sheet, delimiter=',')
     writer.writerow(["ahistoric", "sliding_dtw", "displacement", "alpha_displacement"])
 
-    for i in range(len(samples)):
+    for i, sample in enumerate(SAMPLES):
         row = []
-        ahistoric_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + str(
-            samples[i]) + "\\results_sample_" + str(samples[i]) + "\\ahistoric\\"
-        dtw_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + str(
-            samples[i]) + "\\results_sample_" + str(samples[i]) + "\\sliding_dtw\\"
-        with open(ahistoric_path + "phantom_sample_" + str(samples[i]) + "_rms.txt", 'r') as file:
+        ahistoric_path = PATH + "sample_" + sample + "\\" + "AHISTORIC" + "\\" + sample + "_rms.txt"
+        dtw_path = PATH + "sample_" + sample + "\\" + "SLIDING_DTW" + "\\" + sample + "_rms.txt"
+        with open(ahistoric_path, 'r') as file:
             lines = file.readlines()
             row.append(float(lines[1]))
 
-        with open(dtw_path + "phantom_sample_" + str(samples[i]) + "_rms.txt", 'r') as file:
+        with open(dtw_path, 'r') as file:
             lines = file.readlines()
 
             row.append(float(lines[1]))

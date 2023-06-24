@@ -14,11 +14,11 @@ def post_hoc_test_RM_bonferroni(group_one: str, group_two: str, nr_of_comparison
     return str(group_one + " vs. " + group_two + ": " + str(post_hoc_result) +
           " |  is significant with level " + str(level_of_significance) + ": " + str(is_significant) + "\n")
 
+#PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\test\\"
 
-
-df_anova = pd.read_csv("C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\statistics_for_AnovaRM.csv")
-df_post_hoc = pd.read_csv("C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\statistics_for_post_hoc_tests.csv")
-DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\"
+df_anova = pd.read_csv(PATH + "statistics_for_AnovaRM.csv")
+df_post_hoc = pd.read_csv(PATH + "statistics_for_post_hoc_tests.csv")
+DESTINATION = PATH
 df_post_hoc.boxplot(fontsize=9)
 plt.ylabel("rms-deviation from groundtruth [mm]", fontsize=9)
 plt.savefig(DESTINATION+"boxplot.svg")
@@ -60,3 +60,4 @@ with open(DESTINATION + "statistical_evaluation.txt", 'w') as f:
                 if i != j:
                     f.write(post_hoc_test_RM_bonferroni(df_post_hoc.columns[i], df_post_hoc.columns[j], 6, 0.05))
 
+plt.clf()
