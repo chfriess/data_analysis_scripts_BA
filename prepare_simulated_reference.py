@@ -34,7 +34,8 @@ with open(BASE_PATH + CENTERLINE_NAME, "r") as infile:
         point_one = np.array(centerline_points[i]["position"])
         point_two = np.array(centerline_points[i - 1]["position"])
         next_p2p_distance = distance_3D(point_one, point_two)
-        cumulative_distances_of_centerline_points.append(next_p2p_distance)
+        next_point_position = cumulative_distances_of_centerline_points[i-1] + next_p2p_distance
+        cumulative_distances_of_centerline_points.append(next_point_position)
 
 
 for i, signal_value in enumerate(signal_compensated):
@@ -42,6 +43,8 @@ for i, signal_value in enumerate(signal_compensated):
     centerline_position = cumulative_distances_of_centerline_points[centerline_index]
     next_position_reference_pair = {"centerline_position": centerline_position, "reference_signal": signal_value}
     signal_per_centerline_position.append(next_position_reference_pair)
+
+print(cumulative_distances_of_centerline_points)
 
 
 reference = {"signal_per_centerline_position": signal_per_centerline_position}
