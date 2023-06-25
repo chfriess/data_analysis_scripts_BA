@@ -2,11 +2,13 @@ import json
 import math
 
 import numpy as np
+from matplotlib import pyplot as plt
+from scipy import ndimage
 
 BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\Bachelorarbeit\\simulated_reference\\"
 SIGNAL_NAME = "catheter_trajectory_original_simulated_signal_longercut_0p95_npz"
 CENTERLINE_NAME = "original centerline.json"
-DESTINATION_FILENAME = "simulated_reference"
+DESTINATION_FILENAME = "smoothed_simulated_reference_agar"
 
 
 def project_signal_index_on_centerline_index(signal_index: int) -> int:
@@ -21,6 +23,7 @@ data = np.load(BASE_PATH + SIGNAL_NAME)
 signal = data['simulated_diff_signal']
 el_distances = data['det_el_distances']
 
+signal = ndimage.gaussian_filter1d(signal, 2)
 
 signal_compensated = signal / el_distances
 cumulative_distances_of_centerline_points = [0]
