@@ -83,7 +83,7 @@ def project_single_point_on_centerline(point: np.ndarray):
         DISPLACEMENTS_FROM_ORIGIN.append(
             distance_3D(closest_point, CENTERLINE_AORTA_TOP) + distance_3D(ILIACA_TOP, ILIACA_BASIS))
         PROJECTION_MERKER.append(closest_point.tolist())
-        print("distance =" + str(distance_3D(ILIACA_TOP, ILIACA_BASIS)))
+
     """
     
     """
@@ -108,17 +108,17 @@ def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
 if __name__ == "__main__":
     sample_nr = "1"
 
-    # for sample_nr in [str(x) for x in range(1, 11)]:
-    COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch new setup\\sample_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
-    COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch new setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
-    DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch new setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
-    FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch new setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
+    for sample_nr in [str(x) for x in range(1, 12)]:
+        COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
+        COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
+        DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
+        FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
 
-    project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
-                                  COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
-                                  DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
-                                  FIGURE_DESTINATION=FIGURE_DESTINATION)
+        project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
+                                      COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
+                                      DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
+                                      FIGURE_DESTINATION=FIGURE_DESTINATION)
 
-    plt.clf()
-    PROJECTION_MERKER = []
-    DISPLACEMENTS_FROM_ORIGIN = []
+        plt.clf()
+        PROJECTION_MERKER = []
+        DISPLACEMENTS_FROM_ORIGIN = []

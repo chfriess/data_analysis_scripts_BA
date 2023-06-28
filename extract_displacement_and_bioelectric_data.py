@@ -4,6 +4,7 @@ import statistics
 import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
+from scipy import ndimage
 
 OFFSET_EM = -23  # distance between em-electrode and bioelectric electrode
 NR_CROPPED = 2  # number of data points cropped from the end of the signal after interpolation to correct artefacts
@@ -18,9 +19,9 @@ def normalize_values(d: list) -> list:
 
 if __name__ == "__main__":
 
-    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch new setup\\"
+    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\"
 
-    for COREGISTRATION_NR in ["3"]:
+    for COREGISTRATION_NR in [str(x) for x in range(1, 12)]:
         os.chdir(BASE_PATH + "sample_"
                  + COREGISTRATION_NR + "\\data_bioelectric_sensors\\")
 
@@ -52,7 +53,6 @@ if __name__ == "__main__":
         impedance = data["fft_magnitude_BminA"]
 
 
-
         # generate new x axis, cumualtive displacement em has a zero value , displacement and impedance starts one later
         x_bioelectric = np.linspace(data["mean_times_of_fft_windows_chAB"][0],
                                     data["mean_times_of_fft_windows_chAB"][-1], 149)
@@ -78,9 +78,13 @@ if __name__ == "__main__":
         displacements_interpolated = displacements_interpolated[:-NR_CROPPED]
         cumulative_interpolated = cumulative_interpolated[:-NR_CROPPED]
         impedance_interpolated_normalized = np.array(normalize_values(list(impedance_interpolated)))
+        impedance_interpolated_normalized_filtered = ndimage.gaussian_filter1d(impedance_interpolated_normalized, 2)
 
         fig, ax = plt.subplots()
-        ax.plot(cumulative_interpolated, label="cumulative interpolated")
+        # the starting point of cumulative interpolated is set to the first value of the em signal in the filter
+        # to visualize whether em and cumulative start simultaneously, cumulative interpolated is also set
+        # to the first em value
+        ax.plot(cumulative_interpolated + em_interpolated[0], label="cumulative interpolated")
         ax.plot(em_interpolated, label="em interpolated")
 
         """
@@ -88,7 +92,7 @@ if __name__ == "__main__":
         therefore, em_interpolated[1] corresponds to impedance[0] => to correct that in the figure, the first value is
         doubled
         """
-        ax.plot(np.insert(displacements_interpolated, displacements_interpolated[0]),
+        ax.plot(np.insert(displacements_interpolated, 0, displacements_interpolated[0]),
                 label="displacements interpolated")
 
         ax.set_xlabel("update steps ")
@@ -96,12 +100,13 @@ if __name__ == "__main__":
 
         ax2 = ax.twinx()
 
-        ax2.plot(np.insert(impedance_interpolated_normalized, impedance_interpolated_normalized[0]),
+        ax2.plot(np.insert(impedance_interpolated_normalized, 0, impedance_interpolated_normalized[0]), color="black",
                  label="impedance interpolated")
+        ax2.plot(np.insert(impedance_interpolated_normalized_filtered, 0, impedance_interpolated_normalized[0]), color="purple",
+                 label="impedance interpolated smoothed")
         ax2.set_ylabel("z-value impedance")
-
-        plt.legend()
-        plt.show()
+        ax.legend()
+        ax2.legend()
 
         plt.savefig("check_validity_" + COREGISTRATION_NR + ".svg")
         np.save("em_interpolated_" + COREGISTRATION_NR, em_interpolated)
@@ -109,6 +114,7 @@ if __name__ == "__main__":
         np.save("displacements_interpolated_" + COREGISTRATION_NR, displacements_interpolated)
         np.save("cumulative_displacements_interpolated_" + COREGISTRATION_NR, cumulative_interpolated)
         np.save("impedance_interpolated_normalized_" + COREGISTRATION_NR, impedance_interpolated_normalized)
+        np.save("impedance_interpolated_normalized_filtered_" + COREGISTRATION_NR, impedance_interpolated_normalized_filtered)
 
         print(len(em_interpolated))
         print(len(impedance_interpolated))
