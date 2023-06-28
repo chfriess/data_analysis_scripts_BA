@@ -1,18 +1,26 @@
 import json
 import math
+import statistics
 
 import numpy as np
 from matplotlib import pyplot as plt
 from scipy import ndimage
 
-BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\Bachelorarbeit\\simulated_reference\\"
-SIGNAL_NAME = "catheter_trajectory_original_simulated_signal_longercut_0p95_npz"
-CENTERLINE_NAME = "original centerline.json"
-DESTINATION_FILENAME = "smoothed_simulated_reference_agar"
+BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"
+SIGNAL_NAME = "main branch old setup\\catheter_trajectory_original_simulated_signal_staticel_main_0p7vs0p02_npz"
+CENTERLINE_NAME = "catheter_trajectory_mainbranch.json"
+DESTINATION_FILENAME = "main branch old setup\\smoothed_standardised_simulated_reference_agar_mbos07002"
 
+
+def normalize_values(d: list) -> list:
+    mu = statistics.mean(d)
+    sigma = statistics.stdev(d)
+    for i, el in enumerate(d):
+        d[i] = (el - mu) / sigma
+    return d
 
 def project_signal_index_on_centerline_index(signal_index: int) -> int:
-    return signal_index * 10 + 168
+    return signal_index * 10 + 169
 
 
 def distance_3D(x1: np.ndarray, x2: np.ndarray):
@@ -23,9 +31,12 @@ data = np.load(BASE_PATH + SIGNAL_NAME)
 signal = data['simulated_diff_signal']
 el_distances = data['det_el_distances']
 
-signal = ndimage.gaussian_filter1d(signal, 2)
-
 signal_compensated = signal / el_distances
+signal_compensated = ndimage.gaussian_filter1d(signal_compensated, 2)
+signal_compensated = np.array((normalize_values(list(signal_compensated))))
+
+
+
 cumulative_distances_of_centerline_points = [0]
 signal_per_centerline_position = []
 

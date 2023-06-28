@@ -108,7 +108,7 @@ ax.set_ylabel("displacement along centerline [mm]")
 ax2 = ax.twinx()
 ax2.plot(impedance, color="#fabda6", label="impedance", alpha=0.5)
 ax2.plot(ref_at_grtruth, color="#35177a", label="reference", alpha=0.5)
-ax2.set_ylabel("bioelectric signal in mV")
+ax2.set_ylabel("z-value")
 
 plt.legend()
 #plt.show()
@@ -120,7 +120,7 @@ alphas = np.load(BASE_PATH + "alpha estimates.npy")
 fig2, ax3 = plt.subplots()
 ax3.plot(impedance, color="#fabda6", label="impedance")
 ax3.set_xlabel("update steps ")
-ax3.set_ylabel("bioelectric signal in mV")
+ax3.set_ylabel("z-value")
 
 ax4 = ax3.twinx()
 ax4.plot(alphas, color="green", label="alpha")
@@ -128,6 +128,7 @@ ax4.set_ylabel("alpha")
 plt.legend()
 #plt.show()
 plt.savefig(BASE_PATH + "alpha per update step.svg")
+
 
 
 plt.clf()
