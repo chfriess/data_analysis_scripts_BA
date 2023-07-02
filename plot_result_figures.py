@@ -44,9 +44,9 @@ def normalize_values(data) -> list:
 
 
 
-offset_groundtruth_bioelectric = 0
+
 grtruth = np.load(GRTRUTH_PATH)
-grtruth = list(np.array(grtruth) + offset_groundtruth_bioelectric)
+grtruth = grtruth[1:]
 kernel_size = 10
 kernel = np.ones(kernel_size) / kernel_size
 
@@ -88,7 +88,9 @@ posest_2 = np.load(BASE_PATH + "second best cluster means.npy")
 err_2 = np.load(BASE_PATH + "second best cluster variances.npy")
 
 x = [p for p in range(len(grtruth))]
+x = list(np.array(x) * 0.23)
 y = [l for l in range(len(posest))]
+y = list(np.array(y) * 0.23)
 
 fig, ax = plt.subplots()
 
@@ -100,34 +102,68 @@ ax.scatter(y, posest, color="blue", s=2)
 ax.plot(y, posest_2, color="green", label="second cluster")
 ax.errorbar(y, posest_2, yerr=err_2, ls="None", color="green", capsize=2, elinewidth=0.5, capthick=0.5)
 ax.scatter(y, posest_2, color="green", s=2)
+
+"""
+bi_1 = 0
+bi_2 = 0
+bi_3 = 0
+for i, el in enumerate(grtruth):
+    if el >= 80:
+        bi_1 = i
+        break
+for i, el in enumerate(grtruth):
+    if el >= 116:
+        bi_2 = i
+        break
+
+for i, el in enumerate(grtruth):
+    if el >= 175:
+        bi_3 = i
+        break
+
+
+ax.axvline(x = bi_1, color = 'purple', label="iliaka aorta")
+ax.axvline(x = bi_2, color = 'r', label="middle branch")
+ax.axvline(x = bi_3, color = 'g', label="renal branch")
+"""
+
 plt.legend()
 
-ax.set_xlabel("update steps ")
+ax.set_xlabel("time [s] ")
 ax.set_ylabel("displacement along centerline [mm]")
 
-ax2 = ax.twinx()
-ax2.plot(impedance, color="#fabda6", label="impedance", alpha=0.5)
-ax2.plot(ref_at_grtruth, color="#35177a", label="reference", alpha=0.5)
-ax2.set_ylabel("z-value")
+#ax2 = ax.twinx()
+#ax2.plot(impedance, color="#fabda6", label="impedance", alpha=0.5)
+#ax2.plot(ref_at_grtruth, color="#35177a", label="reference", alpha=0.5)
+#ax2.set_ylabel("z-value")
 
 plt.legend()
 #plt.show()
-plt.savefig(BASE_PATH + "groundtruth vs. pf estimate.svg")
+plt.savefig(BASE_PATH + "groundtruth vs. pf estimate new.svg")
 
 
 plt.figure(1)
 alphas = np.load(BASE_PATH + "alpha estimates.npy")
 fig2, ax3 = plt.subplots()
-ax3.plot(impedance, color="#fabda6", label="impedance")
-ax3.set_xlabel("update steps ")
+
+z = [l for l in range(len(impedance))]
+z = list(np.array(z) * 0.23)
+
+a = [l for l in range(len(ref_at_grtruth))]
+a = list(np.array(a) * 0.23)
+
+ax3.plot(z, impedance, color="#fabda6", label="impedance")
+ax3.plot(a, ref_at_grtruth, color="#35177a", label="reference")
+ax3.set_xlabel("time [s] ")
 ax3.set_ylabel("z-value")
+plt.legend(loc='upper left')
 
 ax4 = ax3.twinx()
-ax4.plot(alphas, color="green", label="alpha")
+ax4.plot(y, alphas, color="green", label="alpha")
 ax4.set_ylabel("alpha")
-plt.legend()
+plt.legend(loc='upper right')
 #plt.show()
-plt.savefig(BASE_PATH + "alpha per update step.svg")
+plt.savefig(BASE_PATH + "alpha per update step new.svg")
 
 
 
