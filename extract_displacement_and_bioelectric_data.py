@@ -1,3 +1,4 @@
+import collections
 import json
 import os
 import pickle
@@ -31,9 +32,10 @@ def normalize_values_space_standardized(impedance, cumulative_displacement):
     return impedance_normalized
 
 def plot_impedance_over_em():
-    for COREGISTRATION_NR in [str(x) for x in range(1,12)]:
-        impedance = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + COREGISTRATION_NR + ".npy")
-        em = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\em_interpolated_" + COREGISTRATION_NR + ".npy")
+    setup = "main branch old setup"
+    for COREGISTRATION_NR in [str(x) for x in range(1, 11)]:
+        impedance = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + COREGISTRATION_NR + ".npy")
+        em = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\em_interpolated_" + COREGISTRATION_NR + ".npy")
 
         fig, ax = plt.subplots()
         ax.set_ylabel("z-score")
@@ -43,7 +45,7 @@ def plot_impedance_over_em():
         #ax.axvline(x=120, color='r', label="middle branch")
         #ax.axvline(x=180, color='g', label="renal branch")
 
-        plt.title("side branch old setup " + COREGISTRATION_NR + "")
+        plt.title(setup + COREGISTRATION_NR + "")
 
         d = {}
 
@@ -56,22 +58,23 @@ def plot_impedance_over_em():
         for key in d.keys():
             d[key] = np.mean(d[key])
 
+        # the particle filter expects the position/impedance-prediction values to be sorted ascending by position
+        od = collections.OrderedDict(sorted(d.items()))
 
-
-        ax.plot(d.keys(), d.values())
+        ax.plot(od.keys(), od.values())
         positions = []
-        for key in d.keys():
-            positions.append({"centerline_position": key, "reference_signal": d[key]})
+        for key in od.keys():
+            positions.append({"centerline_position": key, "reference_signal": od[key]})
 
         reference = {}
         reference["signal_per_centerline_position"] = positions
 
         jo = json.dumps(reference, indent=4)
 
-        with open("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".json", "w") as outfile:
+        with open("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".json", "w") as outfile:
             outfile.write(jo)
 
-        plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".svg")
+        plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".svg")
         plt.clf()
 
 def interpolate_em_on_bioelectric():

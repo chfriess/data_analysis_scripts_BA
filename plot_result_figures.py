@@ -15,6 +15,7 @@ GRTRUTH_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sampl
                                                "\\data_sample_" + sample_nr + "\\groundtruth_from_iliaca.npy"
 
 BASE_PATH = PATH + "sample_" + sample_nr + "\\" + str(measurement_model) + "\\"
+FILENAME = "6"
 """
 
 def predict_impedance_from_diameter(diameter):
@@ -79,18 +80,18 @@ else:
             n = len(ref) - 1
         ref_at_grtruth.append(ref[n])
 
-posest = np.load(BASE_PATH + "best cluster means.npy")
-err = np.load(BASE_PATH + "best cluster variances.npy")
+posest = np.load(BASE_PATH + "best cluster means "+FILENAME+".npy")
+err = np.load(BASE_PATH + "best cluster variances "+FILENAME+".npy")
 
 
 
-posest_2 = np.load(BASE_PATH + "second best cluster means.npy")
-err_2 = np.load(BASE_PATH + "second best cluster variances.npy")
+posest_2 = np.load(BASE_PATH + "second best cluster means "+FILENAME+".npy")
+err_2 = np.load(BASE_PATH + "second best cluster variances "+FILENAME+".npy")
 
-x = [p for p in range(len(grtruth))]
-x = list(np.array(x) * 0.23)
-y = [l for l in range(len(posest))]
-y = list(np.array(y) * 0.23)
+x = [p* 0.0806 for p in range(len(grtruth))]
+#x = list(np.array(x) * 0.0806)
+y = [l* 0.0806 for l in range(len(posest))]
+#y = list(np.array(y) * 0.0806)
 
 fig, ax = plt.subplots()
 
@@ -132,10 +133,14 @@ plt.legend()
 ax.set_xlabel("time [s] ")
 ax.set_ylabel("displacement along centerline [mm]")
 
-#ax2 = ax.twinx()
-#ax2.plot(impedance, color="#fabda6", label="impedance", alpha=0.5)
-#ax2.plot(ref_at_grtruth, color="#35177a", label="reference", alpha=0.5)
-#ax2.set_ylabel("z-value")
+
+z = [l* 0.0806 for l in range(len(impedance))]
+a = [l* 0.0806 for l in range(len(ref_at_grtruth))]
+
+ax2 = ax.twinx()
+ax2.plot(z, impedance, color="#fabda6", label="impedance", alpha=0.5)
+ax2.plot(a, ref_at_grtruth, color="#35177a", label="reference", alpha=0.5)
+ax2.set_ylabel("z-value")
 
 plt.legend()
 #plt.show()
@@ -143,14 +148,11 @@ plt.savefig(BASE_PATH + "groundtruth vs. pf estimate new.svg")
 
 
 plt.figure(1)
-alphas = np.load(BASE_PATH + "alpha estimates.npy")
+alphas = np.load(BASE_PATH + "alpha estimates "+FILENAME+".npy")
 fig2, ax3 = plt.subplots()
 
-z = [l for l in range(len(impedance))]
-z = list(np.array(z) * 0.23)
 
-a = [l for l in range(len(ref_at_grtruth))]
-a = list(np.array(a) * 0.23)
+
 
 ax3.plot(z, impedance, color="#fabda6", label="impedance")
 ax3.plot(a, ref_at_grtruth, color="#35177a", label="reference")
