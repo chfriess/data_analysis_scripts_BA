@@ -1,3 +1,4 @@
+import json
 import os
 import pickle
 import statistics
@@ -7,7 +8,6 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy import ndimage
 
-OFFSET_EM = -23  # distance between em-electrode and bioelectric electrode
 NR_CROPPED = 2  # number of data points cropped from the end of the signal after interpolation to correct artefacts
 
 
@@ -31,29 +31,55 @@ def normalize_values_space_standardized(impedance, cumulative_displacement):
     return impedance_normalized
 
 def plot_impedance_over_em():
-    COREGISTRATION_NR = "7"
-    impedance = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\impedance_normalized_" + COREGISTRATION_NR + ".npy")
-    em = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\em_interpolated_" + COREGISTRATION_NR + ".npy")
+    for COREGISTRATION_NR in [str(x) for x in range(1,12)]:
+        impedance = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + COREGISTRATION_NR + ".npy")
+        em = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\em_interpolated_" + COREGISTRATION_NR + ".npy")
 
-    fig, ax = plt.subplots()
-    ax.set_ylabel("z-score")
-    ax.set_xlabel("em cumulative displacement")
-    destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\main branch old setup " + COREGISTRATION_NR + ".pickle"
+        fig, ax = plt.subplots()
+        ax.set_ylabel("z-score")
+        ax.set_xlabel("em cumulative displacement")
 
-    ax.axvline(x=80, color='purple', label="iliaka aorta")
-    ax.axvline(x=120, color='r', label="middle branch")
-    ax.axvline(x=180, color='g', label="renal branch")
+        #ax.axvline(x=80, color='purple', label="iliaka aorta")
+        #ax.axvline(x=120, color='r', label="middle branch")
+        #ax.axvline(x=180, color='g', label="renal branch")
 
-    plt.title("main branch old setup " + COREGISTRATION_NR + "")
+        plt.title("side branch old setup " + COREGISTRATION_NR + "")
 
-    ax.plot(em[1:], impedance)
-    pickle.dump((fig, ax), open(destination, 'wb'))
+        d = {}
+
+        for i, el in enumerate(em[1:]):
+            if el in d.keys():
+                d[el].append(impedance[i])
+            else:
+                d[el] = [impedance[i]]
+
+        for key in d.keys():
+            d[key] = np.mean(d[key])
+
+
+
+        ax.plot(d.keys(), d.values())
+        positions = []
+        for key in d.keys():
+            positions.append({"centerline_position": key, "reference_signal": d[key]})
+
+        reference = {}
+        reference["signal_per_centerline_position"] = positions
+
+        jo = json.dumps(reference, indent=4)
+
+        with open("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".json", "w") as outfile:
+            outfile.write(jo)
+
+        plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".svg")
+        plt.clf()
 
 def interpolate_em_on_bioelectric():
-    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\"
+    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch new setup\\"
 
-    for COREGISTRATION_NR in ["1"]:
-    #for COREGISTRATION_NR in [str(x) for x in range(1, 12)]:
+    for COREGISTRATION_NR in ["6"]:
+    #for COREGISTRATION_NR in [str(x) for x in range(1, 11)]:
+        print("interpolate em on bioelectric " + COREGISTRATION_NR)
 
         os.chdir(BASE_PATH + "sample_"
                  + COREGISTRATION_NR + "\\data_bioelectric_sensors\\")
@@ -96,9 +122,6 @@ def interpolate_em_on_bioelectric():
 
         for i in range(1, len(cumulative_displacements)):
             displacements.append(cumulative_displacements[i] - cumulative_displacements[i - 1])
-
-        # correct the offset between em sensor and bioelectric sensor
-        em_interpolated += OFFSET_EM
 
         # remove last 2 values, since the last values often deviate due to some signal error
         em_interpolated = em_interpolated[:-NR_CROPPED]
@@ -207,9 +230,6 @@ def interpolate_em_and_bioelectric():
 
         displacements_interpolated = list(np.array(displacements_interpolated) * (-1))
         cumulative_interpolated = list(np.array(cumulative_interpolated) * (-1))
-
-        # correct the offset between em sensor and bioelectric sensor
-        em_interpolated += OFFSET_EM
 
         # remove last 2 values, since the last values often deviate due to some signal error
         em_interpolated = em_interpolated[:-NR_CROPPED]

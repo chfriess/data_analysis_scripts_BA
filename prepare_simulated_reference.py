@@ -8,9 +8,9 @@ from scipy import ndimage
 BRANCH = "side"
 
 BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"
-SIGNAL_NAME = BRANCH + " branch old setup\\catheter_trajectory_original_simulated_signal_staticel_sidebr_0p7vs0p05_npz"
-CENTERLINE_NAME = "catheter_trajectory_main.json"
-DESTINATION_FILENAME = BRANCH + " branch old setup\\smoothed_standardised_simulated_reference_agar_sbos07005"
+SIGNAL_NAME = BRANCH + " branch new setup\\catheter_trajectory_original_simulated_signal_sidebr_0p7vs0p02_npz"
+CENTERLINE_NAME = "catheter_trajectory_side.json"
+DESTINATION_FILENAME = BRANCH + " branch new setup\\smoothed_standardised_simulated_reference_agar_sbns07002"
 
 
 def normalize_values(d: list) -> list:

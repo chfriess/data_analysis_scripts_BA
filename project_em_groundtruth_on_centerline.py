@@ -125,43 +125,53 @@ def project_single_point_on_centerline(point: np.ndarray):
 
 def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
                                   COREGISTRATION_DESTINATION: str,
+                                  BEFORE_CORRECTION: str,
+                                  AFTER_CORRECTION: str,
                                   DISPLACEMENT_DESTINATION: str,
                                   FIGURE_DESTINATION: str):
     df_before_projection = pd.read_csv(COREGISTRATION_SOURCE, sep='\t')
     df_test = df_before_projection.iloc[:, 12:15]
     df_test.to_csv(
-        "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + "2" + "\\em_groundtruth\\groundtruth_coordinates_before_correction.csv",
+        BEFORE_CORRECTION + ".csv",
         sep=' ', quoting=csv.QUOTE_NONE, escapechar=' ', index=False,
         header=False)
+
+    np.savetxt(BEFORE_CORRECTION + ".txt", df_test.values, fmt='%f')
     df_before_projection.apply(correct_offset, axis=1)
 
     df = pd.DataFrame(OFFSET_CORRECTED_POINTS)
     df.to_csv(
-        "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + "2" + "\\em_groundtruth\\groundtruth_coordinates_after_correction.csv",
+        AFTER_CORRECTION + ".csv",
         sep=' ', quoting=csv.QUOTE_NONE, escapechar=' ', index=False,
         header=False)
-
+    np.savetxt(AFTER_CORRECTION + ".txt", df.values, fmt='%f')
     df.apply(project_single_point_on_centerline, axis=1)
     plt.plot(DISPLACEMENTS_FROM_ORIGIN)
     plt.savefig(FIGURE_DESTINATION)
     np.save(DISPLACEMENT_DESTINATION, DISPLACEMENTS_FROM_ORIGIN)
 
     df_after_projection = pd.DataFrame(PROJECTION_MERKER)
-    df_after_projection.to_csv(COREGISTRATION_DESTINATION, sep=' ', quoting=csv.QUOTE_NONE, escapechar=' ', index=False,
+    df_after_projection.to_csv(COREGISTRATION_DESTINATION + ".csv", sep=' ', quoting=csv.QUOTE_NONE, escapechar=' ', index=False,
                                header=False)
+    np.savetxt(COREGISTRATION_DESTINATION + ".txt", df_after_projection.values, fmt='%f')
 
 
 if __name__ == "__main__":
+    for sample_nr in [str(x) for x in range(1, 11)]:
+        COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
+        COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection"
 
-    for sample_nr in ["2"]:
-        # for sample_nr in [str(x) for x in range(1, 11)]:
-        COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
-        COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection.csv"
-        DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
-        FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
+        COREGISTRATION_BEFORE_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_before_correction"
+
+        COREGISTRATION_AFTER_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_correction"
+
+        DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
+        FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
 
         project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
                                       COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
+                                      BEFORE_CORRECTION=COREGISTRATION_BEFORE_CORRECTION,
+                                      AFTER_CORRECTION=COREGISTRATION_AFTER_CORRECTION,
                                       DISPLACEMENT_DESTINATION=DISPLACEMENT_DESTINATION,
                                       FIGURE_DESTINATION=FIGURE_DESTINATION)
 
