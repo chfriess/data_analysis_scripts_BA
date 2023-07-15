@@ -8,9 +8,9 @@ from scipy import ndimage
 BRANCH = "side"
 
 BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"
-SIGNAL_NAME = BRANCH + " branch new setup\\catheter_trajectory_original_simulated_signal_sidebr_0p7vs0p02_npz"
+SIGNAL_NAME = BRANCH + " branch old setup\\catheter_trajectory_original_simulated_signal_staticel_sidebr_0p7vs0p05_npz"
 CENTERLINE_NAME = "catheter_trajectory_side.json"
-DESTINATION_FILENAME = BRANCH + " branch new setup\\smoothed_standardised_simulated_reference_agar_sbns07002"
+DESTINATION_FILENAME = BRANCH + " branch old setup\\side branch"
 
 
 def normalize_values(d: list) -> list:
@@ -38,7 +38,7 @@ el_distances = data['det_el_distances']
 
 signal_compensated = signal / el_distances
 signal_compensated = ndimage.gaussian_filter1d(signal_compensated, 2)
-signal_compensated = np.array((normalize_values(list(signal_compensated))))
+# signal_compensated = np.array((normalize_values(list(signal_compensated))))
 
 cumulative_distances_of_centerline_points = [0]
 signal_per_centerline_position = []
@@ -50,6 +50,7 @@ with open(BASE_PATH + CENTERLINE_NAME, "r") as infile:
     for i in range(1, len(centerline_points)):
         point_one = np.array(centerline_points[i]["position"])
         point_two = np.array(centerline_points[i - 1]["position"])
+
         next_p2p_distance = distance_3D(point_one, point_two)
         next_point_position = cumulative_distances_of_centerline_points[i - 1] + next_p2p_distance
         cumulative_distances_of_centerline_points.append(next_point_position)

@@ -9,7 +9,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from scipy import ndimage
 
-NR_CROPPED = 2  # number of data points cropped from the end of the signal after interpolation to correct artefacts
+NR_CROPPED = 5  # number of data points cropped from the end of the signal after interpolation to correct artefacts
 
 
 def normalize_values(d):
@@ -32,20 +32,32 @@ def normalize_values_space_standardized(impedance, cumulative_displacement):
     return impedance_normalized
 
 def plot_impedance_over_em():
-    setup = "main branch old setup"
-    for COREGISTRATION_NR in [str(x) for x in range(1, 11)]:
+    setup = "side branch old setup"
+    for COREGISTRATION_NR in [str(x) for x in range(6,7)]:
+    #for COREGISTRATION_NR in [str(x) for x in range(1, 12)]:
         impedance = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + COREGISTRATION_NR + ".npy")
+
         em = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\em_interpolated_" + COREGISTRATION_NR + ".npy")
+
+        impedance_old = np.load(
+            "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\old interpolation\\impedance_interpolated_normalized_" + COREGISTRATION_NR + ".npy")
+
+        impedance_old = ndimage.gaussian_filter1d(impedance_old, 1)
+
+        em_old = np.load(
+            "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\data_bioelectric_sensors\\old interpolation\\em_interpolated_" + COREGISTRATION_NR + ".npy")
+
 
         fig, ax = plt.subplots()
         ax.set_ylabel("z-score")
         ax.set_xlabel("em cumulative displacement")
 
-        #ax.axvline(x=80, color='purple', label="iliaka aorta")
-        #ax.axvline(x=120, color='r', label="middle branch")
-        #ax.axvline(x=180, color='g', label="renal branch")
+        ax.axvline(x=79, color='purple', label="iliaka aorta")
+        ax.axvline(x=116, color='r', label="middle branch")
+        ax.axvline(x=174, color='g', label="renal branch")
 
         plt.title(setup + COREGISTRATION_NR + "")
+
 
         d = {}
 
@@ -61,7 +73,23 @@ def plot_impedance_over_em():
         # the particle filter expects the position/impedance-prediction values to be sorted ascending by position
         od = collections.OrderedDict(sorted(d.items()))
 
-        ax.plot(od.keys(), od.values())
+        d2 = {}
+
+        for i, el in enumerate(em_old[1:]):
+            if el in d2.keys():
+                d2[el].append(impedance_old[i])
+            else:
+                d2[el] = [impedance_old[i]]
+
+        for key in d2.keys():
+            d2[key] = np.mean(d2[key])
+
+        # the particle filter expects the position/impedance-prediction values to be sorted ascending by position
+        od2 = collections.OrderedDict(sorted(d2.items()))
+
+        ax.plot(od.keys(), od.values(), label="new interpolation")
+        ax.plot(od2.keys(), od2.values(), label="old interpolation")
+        plt.legend()
         positions = []
         for key in od.keys():
             positions.append({"centerline_position": key, "reference_signal": od[key]})
@@ -69,19 +97,21 @@ def plot_impedance_over_em():
         reference = {}
         reference["signal_per_centerline_position"] = positions
 
+        """
         jo = json.dumps(reference, indent=4)
-
-        with open("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".json", "w") as outfile:
+        
+        with open("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth_unstandardized" + COREGISTRATION_NR + ".json", "w") as outfile:
             outfile.write(jo)
-
-        plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth" + COREGISTRATION_NR + ".svg")
-        plt.clf()
+        """
+        #plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"  +setup + "\\sample_" + COREGISTRATION_NR + "\\reference_for_cross_validation\\impedance per groundtruth_unstandardized" + COREGISTRATION_NR + ".svg")
+        #plt.clf()
+        plt.show()
 
 def interpolate_em_on_bioelectric():
-    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch new setup\\"
+    BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\"
 
-    for COREGISTRATION_NR in ["6"]:
-    #for COREGISTRATION_NR in [str(x) for x in range(1, 11)]:
+    for COREGISTRATION_NR in ["20", "25", "27", "29", "30", "31", "34", "35"]:
+    #for COREGISTRATION_NR in [str(x) for x in range(39, 60)]:
         print("interpolate em on bioelectric " + COREGISTRATION_NR)
 
         os.chdir(BASE_PATH + "sample_"
@@ -102,7 +132,6 @@ def interpolate_em_on_bioelectric():
         timestamps_em = []
         for i in range(1, len(raw_timestamps)):
             timestamps_em.append(raw_timestamps[i][0])
-
         begin_em = 0
         while timestamps_em[begin_em] < data["mean_times_of_fft_windows_chAB"][0]:
             begin_em += 1
@@ -111,7 +140,7 @@ def interpolate_em_on_bioelectric():
             end_em += 1
         print("begin em" + str(begin_em))
         print("end em" + str(end_em))
-        cumulative_displacements = data["windows_x_translation"] * (-1)
+        cumulative_displacements = data["windows_x_translation"]
         impedance = data["fft_magnitude_BminA"]
         displacements = []
 
@@ -123,23 +152,33 @@ def interpolate_em_on_bioelectric():
         # em needs one value more than bioelectric impedance and displacement values
         em_interpolated = np.insert(em_interpolated, 0, em_interpolated[0])
 
-        for i in range(1, len(cumulative_displacements)):
-            displacements.append(cumulative_displacements[i] - cumulative_displacements[i - 1])
+
 
         # remove last 2 values, since the last values often deviate due to some signal error
         em_interpolated = em_interpolated[:-NR_CROPPED]
         impedance = impedance[:-NR_CROPPED]
         displacements = displacements[:-NR_CROPPED]
         cumulative_displacements = cumulative_displacements[:-NR_CROPPED]
-        impedance_normalized = normalize_values_space_standardized(
-            impedance=impedance, cumulative_displacement=cumulative_displacements)
+        #impedance_normalized = normalize_values_space_standardized(
+         #   impedance=impedance, cumulative_displacement=cumulative_displacements)
+        impedance_normalized = normalize_values(impedance)
         impedance_normalized_filtered = ndimage.gaussian_filter1d(impedance_normalized, 2)
+
+
+        em_interpolated = em_interpolated[::-1]
+        impedance = impedance[::-1]
+        impedance_normalized = impedance_normalized[::-1]
+        impedance_normalized_filtered = impedance_normalized_filtered[::-1]
+        cumulative_displacements = cumulative_displacements[::-1] * (-1)
+        cumulative_displacements += em_interpolated[0] - cumulative_displacements[0]
+        for i in range(1, len(cumulative_displacements)):
+            displacements.append(cumulative_displacements[i] - cumulative_displacements[i - 1])
 
         fig, ax = plt.subplots()
         # the starting point of cumulative interpolated is set to the first value of the em signal in the filter
         # to visualize whether em and cumulative start simultaneously, cumulative interpolated is also set
         # to the first em value
-        ax.plot(cumulative_displacements + em_interpolated[0], label="cumulative interpolated")
+        ax.plot(cumulative_displacements, label="cumulative interpolated")
         ax.plot(em_interpolated, label="em interpolated")
 
         """

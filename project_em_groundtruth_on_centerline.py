@@ -5,6 +5,31 @@ import numpy as np
 import pandas as pd
 from matplotlib import pyplot as plt
 
+# CEMTERLINES FOR AGAR PHANTOM I
+CENTERLINE_AORTA_BASIS = np.array([24.9633,	-111.474,	-257.823])
+CENTERLINE_AORTA_TOP = np.array([33.7898,	88.3246,	-259.437])
+AORTA = {'BASIS': CENTERLINE_AORTA_BASIS, 'TOP': CENTERLINE_AORTA_TOP}
+
+# CENTERLINE_ILIACA_LOWER_BASIS = np.array([12.5576,	52.093,	-275.282])
+# CENTERLINE_ILIACA_LOWER_TOP = np.array([75.6866,	115.839,	-263.231])
+# ILIACA_LOWER = {'BASIS': CENTERLINE_ILIACA_LOWER_BASIS, 'TOP': CENTERLINE_ILIACA_LOWER_TOP}
+
+CENTERLINE_ILIACA_UPPER_BASIS = np.array([33.7898,	88.3246,	-259.437])
+CENTERLINE_ILIACA_UPPER_TOP = np.array([-28.282,	154.153,	-256.653])
+ILIACA_UPPER = {'BASIS': CENTERLINE_ILIACA_UPPER_BASIS, 'TOP': CENTERLINE_ILIACA_UPPER_TOP}
+
+
+ILIACA = ILIACA_UPPER
+ILIACA_BASIS = CENTERLINE_ILIACA_UPPER_BASIS
+ILIACA_TOP = CENTERLINE_ILIACA_UPPER_TOP
+
+
+
+
+
+"""
+# CENTERLINES FOR AGAR PHANTOM II
+
 CENTERLINE_AORTA_BASIS = np.array([26.9584, -136.889, -325.379])
 CENTERLINE_AORTA_TOP = np.array([30.2799, 62.9124, -333.653])
 AORTA = {'BASIS': CENTERLINE_AORTA_BASIS, 'TOP': CENTERLINE_AORTA_TOP}
@@ -24,6 +49,7 @@ SIDE_BRANCH = {'BASIS': SIDE_BRANCH_BASIS, 'TOP': SIDE_BRANCH_TOP}
 ILIACA = ILIACA_UPPER
 ILIACA_BASIS = CENTERLINE_ILIACA_UPPER_BASIS
 ILIACA_TOP = CENTERLINE_ILIACA_UPPER_TOP
+"""
 
 OFFSET = 23
 
@@ -92,15 +118,23 @@ def correct_offset(row: np.ndarray):
 
 def project_single_point_on_centerline(point: np.ndarray):
     if distance_of_point_from_line(vessel=ILIACA, point=point) <= distance_of_point_from_line(vessel=AORTA,
-                                                                                              point=point) \
-            and distance_of_point_from_line(vessel=AORTA, point=point) <= distance_of_point_from_line(
-        vessel=SIDE_BRANCH, point=point):
+                                                                                              point=point):
+            #and distance_of_point_from_line(vessel=AORTA, point=point) <= distance_of_point_from_line(
+        #vessel=SIDE_BRANCH, point=point):
         closest_point = closest_point_on_vessel_centerline(vessel=ILIACA, point=point)
         # if closest_point[1] < ILIACA_TOP[1]:
         # DISPLACEMENTS_FROM_ORIGIN.append(-distance_3D(closest_point, ILIACA_TOP))
         # else:
         DISPLACEMENTS_FROM_ORIGIN.append(distance_3D(closest_point, ILIACA_TOP))
         PROJECTION_MERKER.append(closest_point.tolist())
+    else:
+        closest_point = closest_point_on_vessel_centerline(vessel=AORTA, point=point)
+        DISPLACEMENTS_FROM_ORIGIN.append(
+            distance_3D(closest_point, CENTERLINE_AORTA_TOP) + distance_3D(ILIACA_TOP, ILIACA_BASIS))
+        PROJECTION_MERKER.append(closest_point.tolist())
+
+    """ 
+    # Only for agar phantom II
     elif distance_of_point_from_line(vessel=SIDE_BRANCH, point=point) <= distance_of_point_from_line(vessel=ILIACA,
                                                                                                      point=point) \
             and distance_of_point_from_line(vessel=SIDE_BRANCH, point=point) <= distance_of_point_from_line(
@@ -112,15 +146,10 @@ def project_single_point_on_centerline(point: np.ndarray):
                                                                                                          ILIACA_BASIS))
 
         PROJECTION_MERKER.append(closest_point.tolist())
-    else:
-        closest_point = closest_point_on_vessel_centerline(vessel=AORTA, point=point)
-        DISPLACEMENTS_FROM_ORIGIN.append(
-            distance_3D(closest_point, CENTERLINE_AORTA_TOP) + distance_3D(ILIACA_TOP, ILIACA_BASIS))
-        PROJECTION_MERKER.append(closest_point.tolist())
+    """
 
-    """
-    
-    """
+
+
 
 
 def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
@@ -157,16 +186,17 @@ def project_points_on_centerlines(COREGISTRATION_SOURCE: str,
 
 
 if __name__ == "__main__":
-    for sample_nr in [str(x) for x in range(1, 11)]:
-        COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
-        COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection"
+    for sample_nr in [str(x) for x in range(40, 60)]:
+    #for sample_nr in [str(x) for x in range(1, 11)]:
+        COREGISTRATION_SOURCE = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\coregistration_" + sample_nr + "_em.csv"
+        COREGISTRATION_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_projection"
 
-        COREGISTRATION_BEFORE_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_before_correction"
+        COREGISTRATION_BEFORE_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_before_correction"
 
-        COREGISTRATION_AFTER_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_correction"
+        COREGISTRATION_AFTER_CORRECTION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\groundtruth_coordinates_after_correction"
 
-        DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
-        FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
+        DISPLACEMENT_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.npy"
+        FIGURE_DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr + "\\em_groundtruth\\displacement_from_origin.svg"
 
         project_points_on_centerlines(COREGISTRATION_SOURCE=COREGISTRATION_SOURCE,
                                       COREGISTRATION_DESTINATION=COREGISTRATION_DESTINATION,
