@@ -7,8 +7,8 @@ from statistics import mean
 import numpy as np
 import logging
 from scipy.stats import sem
-from navigators.vessel_navigator import VesselNavigator
-from utils.particle_filter_component_enums import MeasurementType, InjectorType
+from particle_filter.navigators.vessel_navigator import VesselNavigator
+from particle_filter.utils.particle_filter_component_enums import MeasurementType, InjectorType
 
 
 def rms(signal_one: list, signal_two: list) -> float:
@@ -98,15 +98,6 @@ def posthoc_run_3D_vessel_navigator(ref_path: str,
     with open(dest_path + "positions_" + filename + ".json", "w") as outfile2:
         outfile2.write(jo2)
 
-    """
-    TODO: make Position3D Json serializable
-    jo3 = json.dumps(clusters_per_step, indent=4)
-
-    # save all clusters
-    with open(dest_path + "clusters.json", "w") as outfile3:
-        outfile3.write(jo3)
-    """
-
     np.save(dest_path + "best cluster means " + filename, np.array(posest))
     np.save(dest_path + "best cluster variances " + filename, np.array(err))
 
@@ -158,14 +149,12 @@ def evaluate_performance():
 
     SAMPLES = ["20", "25", "30", "31", "34"]
     for sample_nr in SAMPLES:
-        reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\" + "smoothed_standardised_simulated_reference_agar.json"
-        impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + sample_nr \
-                         + "\\data_sample_" + sample_nr + "\\normalized_impedance_from_iliaca_without_plastic.npy"
-        groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + sample_nr + \
-                           "\\data_sample_" + sample_nr + "\\groundtruth_from_iliaca_without_plastic_offset_corrected.npy"
-        displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom_data_testing\\sample_" + sample_nr \
-                            + "\\data_sample_" + sample_nr + "\\displacements_from_iliaca_without_plastic.npy"
-        destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\test\\performance\\SLIDING_DTW\\"
+        reference_path = "" + sample_nr + ".json"  # ENTER REFERENCE SOURCE PATH HERE
+        impedance_path = "" + sample_nr + ".npy"  # ENTER IMPEDANCE SOURCE PATH HERE
+
+        groundtruth_path = "" + sample_nr + ".npy"  # ENTER GROUNDTRUTH SOURCE PATH HERE
+        displacement_path = "" + sample_nr + ".npy"  # ENTER DISPLACEMENT SOURCE PATH HERE
+        destination_path = ""  # ENTER DESTINATION PATH HERE
 
         displacements = np.load(displacement_path)
         impedance = np.load(impedance_path)
@@ -197,7 +186,7 @@ def evaluate_performance():
             estimates = [x.get_first_cluster_mean() for x in clusters]
             performance[n] = acc / len(displacements)
             estimates = [x for [x, _] in estimates]
-            errors[n] = VesselNavigator.rms(signal=estimates, groundtruth=list(groundtruth[1:]))
+            errors[n] = rms(estimates, list(groundtruth[1:]))
         performance_per_sample[sample_nr] = performance
         error_per_sample[sample_nr] = errors
 
@@ -218,7 +207,8 @@ def evaluate_performance():
         average_error[n] = np.mean(acc_errors)
         stdev_error.append(np.std(acc_errors))
 
-    destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\test\\performance\\SLIDING_DTW\\"
+
+    destination_path = ""  # ENTER DESTINATION PATH HERE
     np.save(destination_path + "stdev performance per particle number", stdev_performance)
     np.save(destination_path + "stdev error per particle number", stdev_error)
 
@@ -241,28 +231,19 @@ def evaluate_performance_cross_validation():
 
     particle_numbers = [10, 50, 100, 200, 500, 1000]
 
-    SAMPLES = ["2", "3", "4", "5", "6", "7", "8", "9", "10", "11"]
-    PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_side_old\\cross_validation\\"
+    SAMPLES = []  # ENTER SAMPLE NRs HERE
 
     for ref_nr in SAMPLES:
         TESTS = copy.deepcopy(SAMPLES)
         TESTS.remove(ref_nr)
         for sample_nr in TESTS:
 
-            reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" \
-                             + ref_nr + "\\reference_for_cross_validation\\" + "impedance per groundtruth" \
-                             + ref_nr + ".json"
-            impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" \
-                             + sample_nr + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + \
-                             sample_nr + ".npy"
+            reference_path = "" + ref_nr + ".json"  # ENTER REFERENCE SOURCE PATH HERE
+            impedance_path = "" + ref_nr + ".npy"  # ENTER IMPEDANCE SOURCE PATH HERE
 
-            groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" \
-                               + sample_nr + "\\data_bioelectric_sensors\\em_interpolated_" \
-                               + sample_nr + ".npy"
-            displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" \
-                                + sample_nr + "\\data_bioelectric_sensors\\displacements_" \
-                                + sample_nr + ".npy"
-            destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_side_old\\cross_validation\\" + "AHISTORIC" + "\\vs_" + ref_nr + "\\"
+            groundtruth_path = "" + ref_nr + ".npy"  # ENTER GROUNDTRUTH SOURCE PATH HERE
+            displacement_path = "" + ref_nr + ".npy"  # ENTER DISPLACEMENT SOURCE PATH HERE
+            destination_path = ""  # ENTER DESTINATION PATH HERE
 
             displacements = np.load(displacement_path)
             impedance = np.load(impedance_path)
@@ -295,7 +276,7 @@ def evaluate_performance_cross_validation():
                 estimates = [x.get_first_cluster_mean() for x in clusters]
                 performance[n] = acc / len(displacements)
                 estimates = [x for [x, _] in estimates]
-                errors[n] = VesselNavigator.rms(signal=estimates, groundtruth=list(groundtruth[1:]))
+                errors[n] = rms(estimates, list(groundtruth[1:]))
             performance_per_sample[ref_nr + "_" + sample_nr] = performance
             error_per_sample[ref_nr + "_" + sample_nr] = errors
 
@@ -319,7 +300,7 @@ def evaluate_performance_cross_validation():
         average_error[n] = np.mean(acc_errors)
         stdev_error.append(np.std(acc_errors))
 
-    destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_side_old\\performance\\SLIDING_DTW\\"
+    destination_path = ""  # ENTER DESTINATION PATH HERE
     np.save(destination_path + "stdev performance per particle number", stdev_performance)
     np.save(destination_path + "stdev error per particle number", stdev_error)
 
@@ -331,27 +312,19 @@ def evaluate_performance_cross_validation():
 
 
 def cross_validation():
-    SAMPLES = ["2", "3", "5", "6", "7", "8", "9", "10"]
-    PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_main_old\\cross_validation_pruning\\"
+    SAMPLES = []  # ENTER SAMPLE NRs HERE
 
     for ref_nr in SAMPLES:
         TESTS = copy.deepcopy(SAMPLES)
         TESTS.remove(ref_nr)
         for sample_nr in TESTS:
             for measurement_model in MeasurementType:
-                reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\pruning\\cross_reference_map_" + ref_nr + ".json"
-                impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                                 + sample_nr + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + \
-                                 sample_nr + ".npy"
+                reference_path = "" + ref_nr + ".json"  # ENTER REFERENCE SOURCE PATH HERE
+                impedance_path = "" + ref_nr + ".npy"  # ENTER IMPEDANCE SOURCE PATH HERE
 
-                groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                                   + sample_nr + "\\data_bioelectric_sensors\\em_interpolated_" \
-                                   + sample_nr + ".npy"
-                displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                                    + sample_nr + "\\data_bioelectric_sensors\\displacements_" \
-                                    + sample_nr + ".npy"
-                destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_main_old\\cross_validation_pruning\\" + str(
-                    measurement_model.name) + "\\vs_" + ref_nr + "\\"
+                groundtruth_path = "" + ref_nr + ".npy"  # ENTER GROUNDTRUTH SOURCE PATH HERE
+                displacement_path = "" + ref_nr + ".npy"  # ENTER DISPLACEMENT SOURCE PATH HERE
+                destination_path = ""  # ENTER DESTINATION PATH HERE
 
                 groundtruth = np.load(groundtruth_path)
 
@@ -369,59 +342,22 @@ def cross_validation():
                                                 initial_position_center=groundtruth[0],
                                                 initial_branch=0)
                 print("Finished for " + sample_nr + " run of " + str(measurement_model.name))
-                """
-                exec(open("C:\\Users\\Chris\\PycharmProjects\\data_analysis_scripts_BA\\plot_result_figures.py").read(),
-                     {"REF_PATH": reference_path, "IMP_PATH": impedance_path,
-                      "GRTRUTH_PATH": groundtruth_path, "BASE_PATH": destination_path, "FILENAME": sample_nr})
-                """
 
 
 if __name__ == "__main__":
-    """
-    evaluate_performance_cross_validation()
-    """
-    SAMPLES = ["20", "25", "30", "31", "34"]
+
+    SAMPLES = []  # ENTER SAMPLE NRs HERE
 
     for sample_nr in SAMPLES:
         for measurement_model in MeasurementType:
-            # OLD AGAR
-            reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\3D reference\\" + "agar_I_pruning_map.json"
-            impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" + sample_nr \
-                             + "\\data_sample_" + sample_nr + "\\impedance_interpolated_normalized_" + sample_nr + ".npy"
-            groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" + sample_nr + \
-                               "\\data_sample_" + sample_nr + "\\em_interpolated_" + sample_nr + ".npy"
-            displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" + sample_nr \
-                                + "\\data_sample_" + sample_nr + "\\displacements_interpolated_" + sample_nr + ".npy"
-            destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" + sample_nr + "\\" + str(
-                measurement_model.name) + "\\"
-            """
-            # plastic
-            reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\reference_normalized.npy"
-            impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr \
-                             + "\\data_bioelectric_sensors" "\\impedance_normalized_filtered_" + sample_nr + ".npy"
-            groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr \
-                               + "\\data_bioelectric_sensors" "\\em_interpolated_" + sample_nr + ".npy"
-            displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\plastic coregistration data\\04_06_2023_BS\\coregistration_" + sample_nr \
-                                + "\\data_bioelectric_sensors" "\\displacements_" + sample_nr + ".npy"
-            destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_plastic\\sample_" + sample_nr + "\\" + str(
-                measurement_model.name) + "\\"
+            reference_path = "" + sample_nr + ".json"  # ENTER REFERENCE SOURCE PATH HERE
+            impedance_path = "" + sample_nr + ".npy"  # ENTER IMPEDANCE SOURCE PATH HERE
+
+            groundtruth_path = "" + sample_nr + ".npy"  # ENTER GROUNDTRUTH SOURCE PATH HERE
+            displacement_path = "" + sample_nr + ".npy"  # ENTER DISPLACEMENT SOURCE PATH HERE
+            destination_path = ""  # ENTER DESTINATION PATH HERE
 
 
-            reference_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\pruning\\map_simulated.json"
-            impedance_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                             + sample_nr + "\\data_bioelectric_sensors\\impedance_normalized_filtered_" + \
-                             sample_nr + ".npy"
-
-            groundtruth_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                               + sample_nr + "\\data_bioelectric_sensors\\em_interpolated_" \
-                               + sample_nr + ".npy"
-            displacement_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" \
-                                + sample_nr + "\\data_bioelectric_sensors\\displacements_" \
-                                + sample_nr + ".npy"
-            destination_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_main_old\\sample_" + sample_nr + "\\" + str(
-                measurement_model.name) + "\\"
-
-            """
             groundtruth = np.load(groundtruth_path)
 
             posthoc_run_3D_vessel_navigator(ref_path=reference_path,
@@ -439,14 +375,3 @@ if __name__ == "__main__":
                                             initial_branch=0)
             print("Finished for " + sample_nr + " run of " + str(measurement_model.name))
 
-            """
-            exec(open("C:\\Users\\Chris\\PycharmProjects\\data_analysis_scripts_BA\\plot_result_figures.py").read(),
-                 {"REF_PATH": reference_path, "IMP_PATH": impedance_path, "GRTRUTH_PATH": groundtruth_path,
-                  "BASE_PATH": destination_path, "FILENAME": sample_nr})
-
-    exec(open("C:\\Users\\Chris\\PycharmProjects\\data_analysis_scripts_BA\\prepare_for_statistics.py").read(),
-         {"SAMPLES": SAMPLES, "PATH": PATH})
-
-    exec(open("C:\\Users\\Chris\\PycharmProjects\\data_analysis_scripts_BA\\statistical_evaluation.py").read(),
-         {"SAMPLES": SAMPLES, "PATH": PATH})
-    """
