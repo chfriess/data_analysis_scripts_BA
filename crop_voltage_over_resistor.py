@@ -12,9 +12,8 @@ synch_end_low_freq_duration = 3
 SAMPLING_FREQUENCY = 500_000
 
 MOLARITY = "015M"
-#filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\FEP\\" + MOLARITY + "\\after_sync\\conductivity_measurements__voltage_over_inner_pair.npy"
-filepath = "C:\\Users\\Chris\\OneDrive\\Desktop\\phantom coregistration data\\after_sync\\conductivity_measurements__voltage_over_inner_pair.npy"
-destination = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\FEP\\" + MOLARITY + "\\crop_voltage_over_resistor\\"
+filepath = ""  # enter path to conductivity_measurements__voltage_over_inner_pair.npy"
+destination = ""  # enter destination path
 
 voltage_over_resistor = np.load(filepath)
 
