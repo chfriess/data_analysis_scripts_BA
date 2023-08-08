@@ -4,13 +4,13 @@ from particle_filter.utils.map3D import Map3D
 def prepare_cross_validation_maps():
     SAMPLES = ["2", "3", "5", "6", "7", "8", "9", "10"]
 
-    DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\pruning\\"
+    DESTINATION = ""  # ENTER DESTINATION PATH
 
     for sample_nr in SAMPLES:
         m = Map3D()
-        MAIN_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\main branch old setup\\sample_" + sample_nr +\
+        MAIN_PATH = "main branch old setup\\sample_" + sample_nr +\
                     "\\reference_for_cross_validation\\impedance per groundtruth" + sample_nr + ".json"
-        SIDE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\side branch old setup\\sample_" + sample_nr + \
+        SIDE_PATH = "side branch old setup\\sample_" + sample_nr + \
                     "\\reference_for_cross_validation\\impedance per groundtruth" + sample_nr + ".json"
 
         with open(MAIN_PATH, "r") as infile:
