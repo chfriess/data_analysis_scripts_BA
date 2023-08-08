@@ -7,8 +7,8 @@ from scipy import ndimage
 
 BRANCH = "side"
 
-BASE_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\tilt_phantom\\"
-SIGNAL_NAME = BRANCH + " branch old setup\\catheter_trajectory_original_simulated_signal_staticel_sidebr_0p7vs0p05_npz"
+BASE_PATH = ""
+SIGNAL_NAME = "catheter_trajectory_original_simulated_signal_staticel_sidebr_0p7vs0p05_npz"
 CENTERLINE_NAME = "catheter_trajectory_side.json"
 DESTINATION_FILENAME = BRANCH + " branch old setup\\side branch"
 
@@ -38,7 +38,7 @@ el_distances = data['det_el_distances']
 
 signal_compensated = signal / el_distances
 signal_compensated = ndimage.gaussian_filter1d(signal_compensated, 2)
-# signal_compensated = np.array((normalize_values(list(signal_compensated))))
+signal_compensated = np.array((normalize_values(list(signal_compensated))))
 
 cumulative_distances_of_centerline_points = [0]
 signal_per_centerline_position = []
