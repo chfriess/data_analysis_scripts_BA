@@ -1,8 +1,8 @@
 import copy
 import csv
 
-SAMPLES = ["2", "3", "5", "6", "7", "8", "9", "10"]
-PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_main_old\\cross_validation\\"
+SAMPLES = []  # SAMPLES
+PATH = ""  # ENTER PATH TO SOURCE FOLDER
 
 with open(PATH + "statistics_for_AnovaRM.csv", 'w', newline='') as sheet:
     writer = csv.writer(sheet, delimiter=',')
