@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 from matplotlib import pyplot as plt
 
-TYPE = "ERRORS"
+TYPE = "EXECTIME"
 
 fig, ax = plt.subplots()
 
@@ -24,7 +24,7 @@ for i in range(2):
                     color=colors[i], capsize=2, elinewidth=0.5, capthick=0.5)
         ax.set_ylabel("average time per execution step [s]")
         ax.set_xlabel("number of particles")
-        plt.title("Average execution time of update step")
+        plt.title("Average execution time per update step")
     elif TYPE == "ERRORS":
         average_error = pickle.load(open(
             "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_side_old\\performance\\" + models[i] + "\\errors per particle number.pkl",
@@ -41,5 +41,5 @@ for i in range(2):
         plt.title("Average error from groundtruth")
 
 plt.legend()
-plt.show()
+#plt.show()
 plt.savefig("C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_side_old\\performance\\" + "performance_"+TYPE+".svg")
