@@ -32,7 +32,7 @@ def posthoc_run_3D_vessel_navigator(ref_path: str,
                                     initial_branch: int = 0,
                                     initial_position_center: float = 0,
                                     initial_position_variance: float = 0.5,
-                                    alpha_center: float = 1.5,
+                                    alpha_center: float = 2,
                                     alpha_variance: float = 0.1):
     navigator = VesselNavigator()
     navigator.setup_navigator(reference_path=ref_path,

@@ -1,13 +1,12 @@
 import math
 import numpy as np
-import os
 import csv
 import statistics
 
 import matplotlib.pyplot as plt
 
-PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\"
-RESULT_PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\sweep_record\\results\\results_without_scaling_error\\"
+PATH = ""  # ENTER PATH
+RESULT_PATH = ""  # ENTER PATH
 FREQUENCIES = [500, 1000, 2000, 5000, 10_000, 20_000, 50_000]
 NUMBER_OF_FREQUENCIES = 7
 MOLARITY = [0.005, 0.01, 0.03, 0.05, 0.15]
@@ -55,7 +54,6 @@ def determine_and_subtract_signal_mean(signal: np.ndarray) -> np.ndarray:
 
 def calculate_conductance(frequency: int, molarity: float) -> float:
     # calculate output current at specific frequency/molarity combination
-    #TODO: reset the molarity == 0.2 to 0.15?
     if molarity == 0.15:
         resistor_path = PATH + "001M" + "\\cropped_voltage_over_resistor" + "\\voltage_over_resistor_"
         resistor_path += "001M" + "_" + str(frequency) + "Hz.npy"
@@ -110,7 +108,6 @@ def calculate_cell_constant():
 def predict_conductivity():
     init_conductivity_dict()
     cell_constant = calculate_cell_constant()
-    # TODO: save CELL CONSTANT
     for key in CONDUCTANCES.keys():
         for conductance in CONDUCTANCES[key]:
             CONDUCTIVITIES[key].append(conductance / cell_constant)
@@ -198,10 +195,4 @@ def calculate_cell_constant_and_conductivity():
     save_conductance_and_conductivites_as_csv()
     save_data_analysis_conductivity_and_conductance_as_csv()
     plot_conductances()
-    #plot_conductivities_with_benchmark()
 
-
-
-if __name__ == '__main__':
-    calculate_cell_constant_and_conductivity()
-    calculate_current_mean_and_stdev()
