@@ -9,7 +9,7 @@ SAMPLES = ["20", "25", "30", "31", "34"]
 
 
 TRAJECTORY = "MAIN"
-DESTINATION = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\"
+DESTINATION = ""  # ENTER DESTINATION PATH
 branch_accuracy = {"AHISTORIC": [], "SLIDING_DTW": []}
 
 
@@ -21,14 +21,10 @@ for ref_nr in SAMPLES:
     TESTS.remove(ref_nr)
     for sample_nr in TESTS:
         for SETUP in ["AHISTORIC", "SLIDING_DTW"]:
-            groundtruth = np.load("C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" \
-                                  + sample_nr + "\\data_sample_"+ sample_nr + "\\em_interpolated_" \
-                                  + sample_nr + ".npy")
+            groundtruth = np.load("")  # ENTER GROUNDTRUTH PATH
 
             groundtruth = groundtruth[1:]
-            positions_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\branch_pruning_agar_I\\sample_" + sample_nr +"\\"\
-                             + SETUP + "\\positions_" + sample_nr + ".json"
-            #positions_path = "C:\\Users\\Chris\\OneDrive\\Desktop\\result_tilt_main_old\\sample_" + sample_nr + "\\" + SETUP + "\\positions_" + sample_nr + ".json"
+            positions_path = ""  # ENTER PATH TO PARTICLE POSITION ESTIMATES AS .json FILE
             with open(positions_path, "r") as infile:
                 positions = json.load(infile)
 
@@ -36,25 +32,8 @@ for ref_nr in SAMPLES:
                 raise ValueError("position estimates and groundtruth must feature same length")
 
             branch_per_update_step = [0 for _ in range(len(groundtruth))]
-            if TRAJECTORY == "SIDE":
-                for i, el in enumerate(groundtruth):
-                    if el < 80:
-                        branch_per_update_step[i] = 0
-                    elif 80 <= el < 190:
-                        branch_per_update_step[i] = 1
-                    elif el >= 190:
-                        branch_per_update_step[i] = 3
 
-
-            elif TRAJECTORY == "MAIN":
-                for i, el in enumerate(groundtruth):
-                    if el < 55:
-                        branch_per_update_step[i] = 0
-                    elif 55 <= el < 200:
-                        branch_per_update_step[i] = 1
-                    elif el >= 200:
-
-                        branch_per_update_step[i] = 4
+            #  ENTER CORRECT BRANCH ESTIMATE PER UPDATE STEP IN branch_per_update_step LIST
 
             number_of_correct_branch_estimations = 0
             est = []
@@ -86,5 +65,3 @@ with open(DESTINATION + "agar_I_" + "_statistics.txt", 'w') as f:
     f.write("stdev SLIDING_DTW: " + str(np.std(branch_accuracy["SLIDING_DTW"])) + "\n")
     f.write("t-test related AHISTORIC vs. SLIDING_DTW: " + str(result))
 
-print(LAST_CORRECT)
-print(TOTAL)
