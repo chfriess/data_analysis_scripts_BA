@@ -1,7 +1,7 @@
 import csv
 
-#SAMPLES = ["20", "25", "27", "29"]
-#PATH = "C:\\Users\\Chris\\OneDrive\\Desktop\\test\\"
+SAMPLES = []  # SAMPLES
+PATH = ""  # ENTER PATH TO SOURCE FOLDER
 
 with open(PATH + "statistics_for_AnovaRM.csv", 'w', newline='') as sheet:
     writer = csv.writer(sheet, delimiter=',')
