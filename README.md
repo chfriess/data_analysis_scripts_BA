@@ -11,7 +11,7 @@ EM signal:
 - mapping of EM data on bioelctric timestamps by function interpolate_em_on_bioelectric() by script extract_displacement_and_bioelectric_data.py
 
 Bioelectric signal:
-- calculation of impedance and displacement of raw bioelectric sensor data as presented by [1]
+- recording impedance and displacement data based on bioelectric sensor setup as presented by **[1]**
 - Gaussian filtering and z-standardization by interpolate_em_on_bioelectric() by script extract_displacement_and_bioelectric_data.py
 
 
@@ -40,7 +40,7 @@ Reference generation:
 
 ## references
 
-[1] Maier, Heiko, Heribert Schunkert, and Nassir Navab (2023). “Extending bioelectric
+**[1]** Maier, Heiko, Heribert Schunkert, and Nassir Navab (2023). “Extending bioelectric
 navigation for displacement and direction detection.” In: International
 journal of computer assisted radiology and surgery. DOI: 10.1007/s11548-
 023-02927-w.
