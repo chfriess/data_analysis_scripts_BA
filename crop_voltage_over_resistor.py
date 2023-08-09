@@ -17,7 +17,7 @@ destination = ""  # enter destination path
 
 voltage_over_resistor = np.load(filepath)
 
-begin_of_measurement = int((5 + 9.7) * SAMPLING_FREQUENCY)
+begin_of_measurement = int(15 * SAMPLING_FREQUENCY)
 end_of_measurement = begin_of_measurement + 3 * 7 * SAMPLING_FREQUENCY
 decomposed_frequencies = []
 
