@@ -38,6 +38,9 @@ Reference generation:
 - Determination of the cell constant of the bioelectric catheter by script cell_constant_determinator.py
 - Calculating the conductivity of the probes based on conductance and cell constant by script conductivity_calculator.py
 
+## License
+Copyright (c) 2023 Christian Johannes Friess, CC BY-SA 4.0
+
 ## references
 
 **[1]** Maier, Heiko, Heribert Schunkert, and Nassir Navab (2023). “Extending bioelectric
