@@ -39,7 +39,7 @@ if __name__ == "__main__":
     plt.plot(np.array(concentrations),
              prediction(gradient=fit.slope + t * fit.stderr, value=np.array(concentrations),
                         intercept=fit.intercept + t * fit.intercept_stderr), color='grey', linestyle="dotted",
-                        label="confidence interval regression lines")
+             label="confidence interval regression lines")
 
     plt.plot(np.array(concentrations),
              prediction(gradient=fit.slope - t * fit.stderr, value=np.array(concentrations),
@@ -62,6 +62,16 @@ if __name__ == "__main__":
             "Confidence interval intercept = " + str(fit.intercept) + "+/-" + str(t * fit.intercept_stderr) + "\n")
 
         file.write("molarity to achieve a conductivity of 0.30603 S/m:" + str(
-            determine_molarity_for_conductivity(0.30603, gradient=fit.slope, intercept=fit.intercept, )) + "M" + "\n")
+            determine_molarity_for_conductivity(0.30603, gradient=fit.slope, intercept=fit.intercept)) + "M" + "\n")
+
+        file.write(
+            "molarity to achieve a conductivity of 0.30603 S/m with lower bound confidence interval parameters:" + str(
+                determine_molarity_for_conductivity(0.30603, gradient=fit.slope - t * fit.stderr,
+                                                    intercept=fit.intercept - t * fit.intercept_stderr)) + "M" + "\n")
+
+        file.write(
+            "molarity to achieve a conductivity of 0.30603 S/m with upper bound confidence interval parameters:" + str(
+                determine_molarity_for_conductivity(0.30603, gradient=fit.slope + t * fit.stderr,
+                                                    intercept=fit.intercept + t * fit.intercept_stderr)) + "M" + "\n")
 
     plt.savefig("fitted_conductivities.svg")
