@@ -39,7 +39,7 @@ Reference generation:
 - Calculating the conductivity of the probes based on conductance and cell constant by script conductivity_calculator.py
 
 ## License
-Copyright (c) 2023 Christian Johannes Friess, CC BY-SA 4.0
+Copyright (c) 2023 Christian Johannes Friess, CC BY-NC 4.0
 
 ## references
 
