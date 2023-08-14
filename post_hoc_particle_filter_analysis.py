@@ -322,6 +322,7 @@ def cross_validation():
                 reference_path = "" + ref_nr + ".json"  # ENTER REFERENCE SOURCE PATH HERE
                 impedance_path = "" + ref_nr + ".npy"  # ENTER IMPEDANCE SOURCE PATH HERE
 
+
                 groundtruth_path = "" + ref_nr + ".npy"  # ENTER GROUNDTRUTH SOURCE PATH HERE
                 displacement_path = "" + ref_nr + ".npy"  # ENTER DISPLACEMENT SOURCE PATH HERE
                 destination_path = ""  # ENTER DESTINATION PATH HERE
